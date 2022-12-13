@@ -1,0 +1,19 @@
+.env
+*secret*
+
+# py
+__pycache__/
+venv/
+
+# ino
+
+.doc/
+.test/
+.backup/
+
+*.bat
+*_test.*
+*_backup.*
+.test_*
+
+*.log
