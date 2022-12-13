@@ -9,6 +9,6 @@ Project source code
 
 - `116210461128-7` | Peeradon Rungkanawut (me)
 - `116210461150-1` | Komkrit Jongsara
-- `116210461110-5` | Supanat Lekjia
+- `116210461110-5` | Suphanut Lekchia
 
 </details>
