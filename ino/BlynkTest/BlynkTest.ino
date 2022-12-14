@@ -5,10 +5,7 @@
 #include "secret.h"
 #include "config.h"
 
-#define SERIAL_BUFFER_SIZE 64
-#define BLYNK_PRINT Serial
-#define ESP8266_BAUD 9600
-
+#define BUAD_RATE 9600
 #define LED 13
 
 
@@ -20,23 +17,22 @@ ESP8266 wifi(&EspSerial);
 
 // Executes when the value of virtual pin 0 changes
 BLYNK_WRITE(V0) {
-    if(param.asInt() == 1) {
-        // execute this code if the switch widget is now ON
-        digitalWrite(LED, HIGH);  // Set digital pin 2 HIGH
+    if (param.asInt() == 1) {
+        digitalWrite(LED, HIGH);
     }
     else {
-        // execute this code if the switch widget is now OFF
-        digitalWrite(LED, LOW);  // Set digital pin 2 LOW    
+        digitalWrite(LED, LOW);
     }
 }
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(BUAD_RATE);
     Serial.println("Blynk test");
 
-    EspSerial.begin(ESP8266_BAUD);
+    EspSerial.begin(BUAD_RATE);
     Serial.println("Setup EspSerial done");
-    Blynk.begin(BLYNK_AUTH_TOKEN, wifi, SSID, PASS);
+
+    Blynk.begin(BLYNK_AUTH_TOKEN, wifi, SSID, PASS); // Stuck
     Serial.println("Setup Blynk done");
 
     pinMode(LED, OUTPUT);
