@@ -15,6 +15,9 @@ config.h
 *.bat
 *_test.*
 *_backup.*
+*_backup
 .test_*
+
+utils/*
 
 *.log
