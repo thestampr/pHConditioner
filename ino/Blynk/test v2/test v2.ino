@@ -1,3 +1,5 @@
+#define BLYNK_PRINT Serial 
+
 #include <ESP8266_Lib.h>
 #include <BlynkSimpleShieldEsp8266.h>
 #include <SoftwareSerial.h>
@@ -5,7 +7,7 @@
 #include "secret.h"
 #include "config.h"
 
-#define BUAD_RATE 9600
+#define BUAD_RATE 115200
 #define LED 13
 
 
@@ -27,7 +29,7 @@ BLYNK_WRITE(V0) {
 
 void setup() {
     Serial.begin(BUAD_RATE);
-    Serial.println("Blynk test");
+    Serial.println("\n\n\nBlynk test");
 
     EspSerial.begin(BUAD_RATE);
     Serial.println("Setup EspSerial done");
@@ -44,9 +46,4 @@ void setup() {
 
 void loop() {
     Blynk.run();
-    // listen for communication from the ESP8266 and then write it to the serial monitor
-    if ( EspSerial.available() )   {  Serial.write( EspSerial.read() );  }
- 
-    // listen for user input and send it to the ESP8266
-    if ( Serial.available() )       {  EspSerial.write( Serial.read() );  }
 }

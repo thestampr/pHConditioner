@@ -7,7 +7,9 @@ from secret import * # secret.py
 
 import time
 
+SERVER = "blynk.cloud"
 __log__ = logging.getLogger(__name__)
+
 
 def read(virtual: V) -> str:
     return f"read {virtual}"
@@ -17,7 +19,7 @@ def write(virtual: V) -> str:
     
 
 
-blynk = blynklib.Blynk(BLYNK_AUTH_TOKEN)
+blynk = blynklib.Blynk(BLYNK_AUTH_TOKEN, server=SERVER)
 
 @blynk.handle_event("connect")
 def connect_handler():
