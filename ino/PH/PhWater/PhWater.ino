@@ -11,7 +11,6 @@ void setup(void){
 //-------------------------------------------------------------
 
 void loop(void){ 
-    char Key;
     Read_PH2();
     
     Serial.print("pH= ");

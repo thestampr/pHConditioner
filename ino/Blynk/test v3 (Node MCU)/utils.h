@@ -1,5 +1,4 @@
-// Utils fuunction
-
+// Utils function
 
 /**
  * Maps a float value from one range to another.
