@@ -1,4 +1,4 @@
-// Test v4
+// main source code
 
 #define BLYNK_PRINT Serial
 
@@ -12,6 +12,8 @@
 #include "secret.h"
 #include "utils.h"
 
+int working = 0;
+
 float update_timer = 0;
 float ph_target = 7.0;
 float ph;
@@ -22,14 +24,17 @@ DallasTemperature Sensor(&Onewire);
 
 
 BLYNK_CONNECTED() {
-    reset();
+    Blynk.syncAll();
 }
 
 BLYNK_WRITE(PIN_WORKER) {
     digitalWrite(LED, param.asInt());
+    working = param.asInt();
     if (param.asInt()) {
         Serial.print("Starting, target=");
         Serial.println(ph_target);
+    } else {
+        stop_working();
     }
 }
 
@@ -63,8 +68,19 @@ float get_ph(void) {
     return ph;
 }
 
+/**
+ * Stop the machine from running
+ * 
+ */
+void stop_working(void) {
+    
+}
+
 
 void reset(void) {
+    working = 0;
+
+
     Blynk.virtualWrite(PIN_WORKER, 0);
     Blynk.virtualWrite(PIN_PROCESS, 0);
 }
@@ -87,6 +103,7 @@ void update(void) {
         digitalWrite(BUILTIN_LED, HIGH);
     }
 }
+
 
 void setup(void) {
     pinMode(LED, OUTPUT);

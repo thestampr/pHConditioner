@@ -14,9 +14,10 @@ secret.h
 .design/
 
 *.bat
-*_test.*
+*.bak
 *_backup.*
 *_backup
+*_test.*
 .test_*
 
 utils/*
