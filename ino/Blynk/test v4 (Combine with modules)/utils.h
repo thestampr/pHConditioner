@@ -7,8 +7,8 @@
  *
  * @param message The debug message or data to be printed.
  */
-template <typename T>
-void debug(T message) {
+template <typename Printable>
+void debug(Printable message) {
     Serial.println("DEBUG: " + String(message));
 }
 

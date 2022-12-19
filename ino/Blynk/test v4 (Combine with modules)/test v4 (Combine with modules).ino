@@ -75,7 +75,7 @@ void update(void) {
     if (update_timer >= DELAY_TIME * UPDATE_SECOND) {
         // Send data every UPDATE_SECOND
 
-        debug("pH:" + ph);
+        debug("pH:" + String(ph));
 
         digitalWrite(BUILTIN_LED, LOW);
         Sensor.requestTemperatures();
