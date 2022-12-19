@@ -29,12 +29,12 @@ def connect_handler():
 def disconnect_handler():
     __log__.info("Disconnected")
 
-@blynk.handle_event(write(V.PROCESS_PERCENY))
+@blynk.handle_event(write(V.PROCESS_PERCENT))
 def on_start_switch(pin, value) -> None:
     print(pin, value)
 
 
-print(write(V.PROCESS_PERCENY))
+print(write(V.PROCESS_PERCENT))
 
 def main() -> None:
     blynk.run()
