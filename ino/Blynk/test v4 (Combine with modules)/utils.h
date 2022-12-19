@@ -1,3 +1,17 @@
+#ifndef DEBUG
+#define DEBUG 0
+#endif // DEBUG
+
+/**
+ * Prints a debug message to the serial port.
+ *
+ * @param message The debug message or data to be printed.
+ */
+template <typename T>
+void debug(T message) {
+    Serial.println("DEBUG: " + String(message));
+}
+
 /**
  * Maps a float value from one range to another.
  * 

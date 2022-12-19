@@ -23,7 +23,6 @@ DallasTemperature Sensor(&Onewire);
 
 
 BLYNK_CONNECTED() {
-    Blynk.virtualWrite(PIN_WORKER, 0);
     reset();
 }
 
@@ -77,7 +76,7 @@ void update(void) {
     if (update_timer >= delay_time * update_second) {
         // Send data every update_second
 
-        Serial.println(ph);
+        debug("pH:" + ph);
 
         digitalWrite(BUILTIN_LED, LOW);
         Sensor.requestTemperatures();

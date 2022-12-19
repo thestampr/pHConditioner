@@ -1,5 +1,8 @@
 // Project constant
 
+// Debug
+#define DEBUG 0
+
 // Pins
 #define LED D0
 #define ONE_WIRE_BUS D5
