@@ -16,6 +16,7 @@
 #define PIN_PROCESS V4
 
 
-const float ph_calibration = -7;
-const float update_second = 1;
-const float delay_time = 10;
+const string BLYNK_CLOUD = "blynk.cloud";
+const float PH_CALIBRATION = -7;
+const float UPDATE_SECOND = 1;
+const float DELAY_TIME = 10;

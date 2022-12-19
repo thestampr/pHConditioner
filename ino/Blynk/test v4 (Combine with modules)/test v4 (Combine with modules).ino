@@ -10,7 +10,6 @@
 
 #include "config.h"
 #include "secret.h"
-#include "const.h"
 #include "utils.h"
 
 float update_timer = 0;
@@ -60,7 +59,7 @@ float get_ph(void) {
     for (int i=2; i<8; i++)
         avgval += buffer_arr[i];
     float milli_volt = (float)avgval * 5.0 / 1024 / 6; 
-    ph = (milli_volt * 3.5) + ph_calibration;
+    ph = (milli_volt * 3.5) + PH_CALIBRATION;
     return ph;
 }
 
@@ -71,10 +70,10 @@ void reset(void) {
 }
 
 void update(void) {
-    update_timer += delay_time/100;
+    update_timer += DELAY_TIME/100;
 
-    if (update_timer >= delay_time * update_second) {
-        // Send data every update_second
+    if (update_timer >= DELAY_TIME * UPDATE_SECOND) {
+        // Send data every UPDATE_SECOND
 
         debug("pH:" + ph);
 
@@ -114,6 +113,6 @@ void loop(void) {
         Timer.run();
         Blynk.run();
         update();
-        delay(delay_time);
+        delay(DELAY_TIME);
     }
 }

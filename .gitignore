@@ -6,7 +6,7 @@ __pycache__/
 venv/
 
 # ino
-config.h
+secret.h
 
 .doc/
 .test/
