@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "system_error": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "memory": "cpp"
     }
 }

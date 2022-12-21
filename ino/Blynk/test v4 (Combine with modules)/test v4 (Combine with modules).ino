@@ -1,4 +1,4 @@
-// Test v4
+// main source code
 
 #define BLYNK_PRINT Serial
 
@@ -12,7 +12,10 @@
 #include "secret.h"
 #include "utils.h"
 
+int working = 0;
+
 float update_timer = 0;
+float process_percent = 0;
 float ph_target = 7.0;
 float ph;
 
@@ -22,19 +25,25 @@ DallasTemperature Sensor(&Onewire);
 
 
 BLYNK_CONNECTED() {
-    reset();
+    Blynk.syncAll();
 }
 
 BLYNK_WRITE(PIN_WORKER) {
     digitalWrite(LED, param.asInt());
+    working = param.asInt();
     if (param.asInt()) {
-        Serial.print("Starting, target=");
-        Serial.println(ph_target);
+        debug("Starting, target=" + String(ph_target));
+    } else {
+        stop_working();
     }
 }
 
 BLYNK_WRITE(PIN_PH_TARGET) {
     ph_target = param.asFloat();
+}
+
+BLYNK_WRITE(PIN_PROCESS) {
+    process_percent = param.asFloat();
 }
 
 
@@ -63,14 +72,33 @@ float get_ph(void) {
     return ph;
 }
 
+/**
+ * Stop the machine from running
+ * 
+ */
+void stop_working(void) {
+    reset();
+}
+
 
 void reset(void) {
+    working = 0;
+    process_percent = 0;
+
     Blynk.virtualWrite(PIN_WORKER, 0);
     Blynk.virtualWrite(PIN_PROCESS, 0);
+
+    digitalWrite(LED, working);
 }
 
 void update(void) {
     update_timer += DELAY_TIME/100;
+
+    if (working) {
+        process_percent += 0.1;
+    } else {
+        process_percent = 0;
+    }
 
     if (update_timer >= DELAY_TIME * UPDATE_SECOND) {
         // Send data every UPDATE_SECOND
@@ -82,11 +110,14 @@ void update(void) {
 
         Blynk.virtualWrite(PIN_PH, ph);
         Blynk.virtualWrite(PIN_TEMP, Sensor.getTempCByIndex(0));
+        Blynk.virtualWrite(PIN_PROCESS, process_percent);
+
         update_timer = 0;
     } else {
         digitalWrite(BUILTIN_LED, HIGH);
     }
 }
+
 
 void setup(void) {
     pinMode(LED, OUTPUT);

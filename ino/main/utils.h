@@ -38,7 +38,7 @@ float float_map(float x, float in_min, float in_max, float out_min, float out_ma
 void num_to_char(unsigned long num, char *buffer, unsigned char digit) {
     char i;
     // Convert the number to a character array
-    for (i=(digit-1); i>= 0; i--) {
+    for (i=(digit-1); i>=0; i--) {
         buffer[i] = (num % 10) + '0';  // 234 , 23 , 2
         num = num / 10;
     }  

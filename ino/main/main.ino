@@ -31,8 +31,7 @@ BLYNK_WRITE(PIN_WORKER) {
     digitalWrite(LED, param.asInt());
     working = param.asInt();
     if (param.asInt()) {
-        Serial.print("Starting, target=");
-        Serial.println(ph_target);
+        debug("Starting, target=" + String(ph_target));
     } else {
         stop_working();
     }
