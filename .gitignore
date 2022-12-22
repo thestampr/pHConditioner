@@ -12,6 +12,7 @@ secret.h
 .test/
 .backup/
 .design/
+.repo/
 
 *.bat
 *.bak
