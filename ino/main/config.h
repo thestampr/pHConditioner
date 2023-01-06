@@ -17,7 +17,6 @@
 
 #define BLYNK_CLOUD "blynk.cloud"
 
-const float PH_CALIBRATION = -7;
 const float UPDATE_SECOND = 1;
 const float DELAY_TIME = 10;
 

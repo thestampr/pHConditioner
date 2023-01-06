@@ -1,5 +1,11 @@
 // PH sensor model
 
+#ifndef MODEL_PHsensor
+#define MODEL_PHsensor
+
+const float PH_CALIBRATION = -7;
+
+
 class pHSensor {
     public:
         int pin;
@@ -14,7 +20,7 @@ class pHSensor {
             int buffer_arr[10], temp;
 
             for (int i = 0; i < 10; i++) {
-                buffer_arr[i] = analogRead(ANALOG_PH);
+                buffer_arr[i] = analogRead(pin);
                 delay(10);
             }
             for (int i = 0; i < 9; i++) {
@@ -35,3 +41,5 @@ class pHSensor {
             return value;
         }
 };
+
+# endif // MODEL_PHsensor
