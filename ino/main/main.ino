@@ -7,6 +7,7 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 #include <SimpleTimer.h>
+#include <EEPROM.h>
 
 #include "config.h"
 #include "secret.h"
@@ -21,6 +22,25 @@ float ph;
 SimpleTimer Timer;
 OneWire Onewire(ONE_WIRE_BUS);
 DallasTemperature Sensor(&Onewire);
+
+
+String read_eeprom(int address, String default_value) {
+    String result = "";
+    char c;
+    int i;
+    while (true) {
+        c = EEPROM.read(address + i);
+        if (c == 0 || c == 255 || i >= EEPROM_MAX_LENGTH) {  // stop reading if null character or empty cell or max length reached
+            if (result == "") {  // if nothing was read
+                result = default_value;  // use the default value
+            }
+            break;
+        }
+        result += c;
+        i++;
+    }
+    return result;
+}
 
 
 BLYNK_CONNECTED() {
@@ -112,6 +132,7 @@ void setup(void) {
     Serial.begin(115200);
     Sensor.begin();
     WiFi.begin(SSID, PASS);
+    EEPROM.begin(512);
 
     Blynk.begin(
         BLYNK_AUTH_TOKEN, 

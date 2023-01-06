@@ -20,3 +20,5 @@
 const float PH_CALIBRATION = -7;
 const float UPDATE_SECOND = 1;
 const float DELAY_TIME = 10;
+
+const int EEPROM_MAX_LENGTH = 32;
