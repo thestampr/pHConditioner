@@ -4,8 +4,6 @@
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
-#include <DallasTemperature.h>
-#include <OneWire.h>
 #include <SimpleTimer.h>
 #include <EEPROM.h>
 
@@ -14,6 +12,8 @@
 #include "utils.h"
 
 #include "Models\pHSensor.h"
+#include "Models\TempSensor.h"
+
 
 int working = 0;
 int update_timer = 1;
@@ -22,9 +22,8 @@ float update_timer_counter = 0;
 float ph_target = 7.0;
 
 SimpleTimer Timer;
-OneWire Onewire(ONE_WIRE_BUS);
-DallasTemperature Sensor(&Onewire);
 
+TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
 
 
@@ -76,13 +75,12 @@ void update(void) {
     if (update_timer_counter >= DELAY_TIME * update_timer) {
         // Send data every update_timer
 
-        debug("pH:" + String(Ph.value));
+        debug("pH:" + String(Ph.value) + ", Temp:" + String(Temp.value));
 
         digitalWrite(BUILTIN_LED, LOW);
-        Sensor.requestTemperatures();
 
         Blynk.virtualWrite(PIN_PH, Ph.value);
-        Blynk.virtualWrite(PIN_TEMP, Sensor.getTempCByIndex(0));
+        Blynk.virtualWrite(PIN_TEMP, Temp.value);
         update_timer_counter = 0;
     } else {
         digitalWrite(BUILTIN_LED, HIGH);
@@ -104,10 +102,8 @@ void stop(void) {
 void setup(void) {
     pinMode(LED, OUTPUT);
     pinMode(LED_BUILTIN, OUTPUT);
-    // pinMode(ANALOG_PH, INPUT);
 
     Serial.begin(115200);
-    Sensor.begin();
     WiFi.begin(SSID, PASS);
     EEPROM.begin(512);
 
@@ -118,8 +114,8 @@ void setup(void) {
         BLYNK_CLOUD, 
         80
     );
-
     Timer.setInterval(1000L, [&]() { Ph.get(); });
+    Timer.setInterval(1000L, [&]() { Temp.get(); });
 }
 
 void loop(void) {

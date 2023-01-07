@@ -11,11 +11,11 @@ class pHSensor {
         int pin;
         float value;
 
-        pHSensor(int pin_): pin(pin_) {
+        pHSensor(int pin_a): pin(pin_a) {
             pinMode(pin, INPUT);
         }
 
-        float get() {
+        float get(void) {
             unsigned long int avgval;
             int buffer_arr[10], temp;
 
