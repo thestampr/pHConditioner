@@ -1,15 +1,14 @@
 // Temperature sensor model
 
-#ifndef MODEL_TEMPERATUREsensor
-#define MODEL_TEMPERATUREsensor
+#pragma once
 
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
+#include "..\utils.h"
+
 
 class TempSensor {
-    private:
-
     public:
         int pin;
         float value;
@@ -22,10 +21,10 @@ class TempSensor {
         }
 
         float get(void) {
+            // call this in `SimpleTimer.setInterval` to prevent from delay
+
             Sensor.requestTemperatures();
             value = Sensor.getTempCByIndex(0);
             return value;
         }
 };
-
-# endif // MODEL_TEMPERATUREsensor

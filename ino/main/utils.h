@@ -1,7 +1,6 @@
 // Utils
 
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #ifndef DEBUG
 #define DEBUG 0
@@ -56,5 +55,3 @@ void num_to_char(unsigned long num, char *buffer, unsigned char digit) {
         }
     }   
 }
-
-#endif // UTILS_H

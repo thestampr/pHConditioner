@@ -1,5 +1,7 @@
 // Project constant
 
+#pragma once
+
 // Debug
 #define DEBUG 0
 

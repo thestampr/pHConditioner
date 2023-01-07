@@ -1,7 +1,6 @@
 // PH sensor model
 
-#ifndef MODEL_PHsensor
-#define MODEL_PHsensor
+#pragma once
 
 const float PH_CALIBRATION = -7;
 
@@ -14,8 +13,10 @@ class pHSensor {
         pHSensor(int pin_a): pin(pin_a) {
             pinMode(pin, INPUT);
         }
-
+        
         float get(void) {
+            // call this in `SimpleTimer.setInterval` to prevent from delay
+
             unsigned long int avgval;
             int buffer_arr[10], temp;
 
@@ -41,5 +42,3 @@ class pHSensor {
             return value;
         }
 };
-
-# endif // MODEL_PHsensor
