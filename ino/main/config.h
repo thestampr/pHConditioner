@@ -14,10 +14,10 @@
 #define PIN_PH V2
 #define PIN_PH_TARGET V3
 #define PIN_PROCESS V4
+#define PIN_UPDATE_TIMER V5
 
 #define BLYNK_CLOUD "blynk.cloud"
 
-const float UPDATE_SECOND = 1;
 const float DELAY_TIME = 10;
 
 const int EEPROM_MAX_LENGTH = 32;

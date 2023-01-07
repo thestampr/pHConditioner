@@ -16,8 +16,9 @@
 #include "Models\pHSensor.h"
 
 int working = 0;
+int update_timer = 1;
 
-float update_timer = 0;
+float update_timer_counter = 0;
 float ph_target = 7.0;
 
 SimpleTimer Timer;
@@ -64,12 +65,16 @@ BLYNK_WRITE(PIN_PH_TARGET) {
     ph_target = param.asFloat();
 }
 
+BLYNK_WRITE(PIN_UPDATE_TIMER) {
+    update_timer = param.asInt();
+}
+
 
 void update(void) {
-    update_timer += DELAY_TIME/100;
+    update_timer_counter += DELAY_TIME/100;
 
-    if (update_timer >= DELAY_TIME * UPDATE_SECOND) {
-        // Send data every UPDATE_SECOND
+    if (update_timer_counter >= DELAY_TIME * update_timer) {
+        // Send data every update_timer
 
         debug("pH:" + String(Ph.value));
 
@@ -78,7 +83,7 @@ void update(void) {
 
         Blynk.virtualWrite(PIN_PH, Ph.value);
         Blynk.virtualWrite(PIN_TEMP, Sensor.getTempCByIndex(0));
-        update_timer = 0;
+        update_timer_counter = 0;
     } else {
         digitalWrite(BUILTIN_LED, HIGH);
     }
@@ -86,7 +91,6 @@ void update(void) {
 
 void reset(void) {
     working = 0;
-
 
     Blynk.virtualWrite(PIN_WORKER, 0);
     Blynk.virtualWrite(PIN_PROCESS, 0);
