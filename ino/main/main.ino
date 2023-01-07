@@ -120,10 +120,11 @@ void setup(void) {
 
 void loop(void) {
     Blynk.run();
-    
+    Timer.run();
+
     if (Blynk.connected()) {
-        Timer.run();
         update();
-        delay(DELAY_TIME);
     }
+
+    delay(DELAY_TIME);
 }
