@@ -2,6 +2,8 @@
 
 #pragma once
 
+#define VERSION "2.0.0"
+
 // Debug
 #define DEBUG 0
 
@@ -11,12 +13,13 @@
 #define ANALOG_PH A0
 
 // Virtual pins
-#define PIN_WORKER V0
-#define PIN_TEMP V1
-#define PIN_PH V2
-#define PIN_PH_TARGET V3
-#define PIN_PROCESS V4
-#define PIN_UPDATE_TIMER V5
+#define PIN_VERSION V0
+#define PIN_WORKER V1
+#define PIN_TEMP V2
+#define PIN_PH V3
+#define PIN_PH_TARGET V4
+#define PIN_PROCESS V5
+#define PIN_UPDATE_TIMER V6
 
 #define BLYNK_CLOUD "blynk.cloud"
 

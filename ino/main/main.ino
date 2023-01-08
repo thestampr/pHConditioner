@@ -48,6 +48,7 @@ String read_eeprom(int address, String default_value) {
 
 BLYNK_CONNECTED() {
     Blynk.syncAll();
+    Blynk.virtualWrite(PIN_VERSION, VERSION);
 }
 
 BLYNK_WRITE(PIN_WORKER) {
