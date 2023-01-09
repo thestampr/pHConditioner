@@ -2,10 +2,9 @@
 
 #define BLYNK_PRINT Serial
 
-#include <ESP8266WiFi.h>
+#include <WiFiManager.h>
 #include <BlynkSimpleEsp8266.h>
 #include <SimpleTimer.h>
-#include <EEPROM.h>
 
 #include "config.h"
 #include "secret.h"
@@ -22,27 +21,18 @@ float update_timer_counter = 0;
 float ph_target = 7.0;
 
 SimpleTimer Timer;
+WiFiManager WifiMgr;
 
 TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
 
 
-String read_eeprom(int address, String default_value) {
-    String result = "";
-    char c;
-    int i;
-    while (true) {
-        c = EEPROM.read(address + i);
-        if (c == 0 || c == 255 || i >= EEPROM_MAX_LENGTH) {  // stop reading if null character or empty cell or max length reached
-            if (result == "") {  // if nothing was read
-                result = default_value;  // use the default value
-            }
-            break;
-        }
-        result += c;
-        i++;
+String get_param(String name) {
+    String value;
+    if (WifiMgr.server->hasArg(name)) {
+        value = WifiMgr.server->arg(name);
     }
-    return result;
+    return value;
 }
 
 
@@ -67,6 +57,19 @@ BLYNK_WRITE(PIN_PH_TARGET) {
 
 BLYNK_WRITE(PIN_UPDATE_TIMER) {
     update_timer = param.asInt();
+}
+
+
+void wm_config(void) {
+    WifiMgr.setDarkMode(WM_DARKMODE);
+    WifiMgr.setDebugOutput(WM_DEBUG);
+    WifiMgr.setSaveConfigCallback(wm_savecallback);
+    WifiMgr.setConfigPortalBlocking(!WM_NONBLOCKING);
+}
+
+void wm_savecallback(void) {
+    debug("Restarting...");
+    ESP.restart();
 }
 
 
@@ -105,21 +108,29 @@ void setup(void) {
     pinMode(LED_BUILTIN, OUTPUT);
 
     Serial.begin(115200);
-    WiFi.begin(SSID, PASS);
-    EEPROM.begin(512);
+    wm_config();
 
-    Blynk.begin(
-        BLYNK_AUTH_TOKEN, 
-        SSID, 
-        PASS, 
-        BLYNK_CLOUD, 
-        80
-    );
+    if (WifiMgr.autoConnect(WM_SSID)) {
+        Blynk.begin(
+            BLYNK_AUTH_TOKEN, 
+            WifiMgr.getWiFiSSID().c_str(), 
+            WifiMgr.getWiFiPass().c_str(), 
+            BLYNK_CLOUD, 
+            80
+        );
+        debug("Connected");
+    } else {
+        debug("Connect failed");
+        Serial.println("Connect to " + String(WM_SSID) + " for wifi configuration.");
+    }
+
     Timer.setInterval(1000L, [&]() { Ph.get(); });
     Timer.setInterval(1000L, [&]() { Temp.get(); });
 }
 
 void loop(void) {
+    if (WM_NONBLOCKING) WifiMgr.process();
+
     Blynk.run();
     Timer.run();
 

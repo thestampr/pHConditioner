@@ -5,7 +5,8 @@
 #define VERSION "2.0.0"
 
 // Debug
-#define DEBUG 0
+#define DEBUG 1
+#define WM_DEBUG 0
 
 // Pins
 #define LED D0
@@ -22,6 +23,10 @@
 #define PIN_UPDATE_TIMER V6
 
 #define BLYNK_CLOUD "blynk.cloud"
+
+#define WM_SSID "PH-CON"
+#define WM_NONBLOCKING 1
+#define WM_DARKMODE 1
 
 const float DELAY_TIME = 10;
 

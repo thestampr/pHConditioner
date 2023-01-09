@@ -13,7 +13,7 @@
  */
 template <typename Printable>
 void debug(Printable message) {
-    Serial.println("DEBUG: " + String(message));
+    if (DEBUG) Serial.println("DEBUG: " + String(message));
 }
 
 /**
