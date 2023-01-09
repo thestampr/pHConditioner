@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define VERSION "2.0.1"
+#define VERSION "2.0.2"
 
 // Debug
 #define DEBUG 1
@@ -21,12 +21,15 @@
 #define PIN_PH_TARGET V4
 #define PIN_PROCESS V5
 #define PIN_UPDATE_TIMER V6
+#define PIN_RESET V7
 
 #define BLYNK_CLOUD "blynk.cloud"
 
 #define WM_SSID "PH-CON"
 #define WM_NONBLOCKING 1
 #define WM_DARKMODE 1
+
+#define RST_HOLDSECOND 3
 
 const float DELAY_TIME = 10;
 

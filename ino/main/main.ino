@@ -14,11 +14,13 @@
 #include "Models\TempSensor.h"
 
 
-int working = 0;
+int working;
+int rst_checker;
 int update_timer = 1;
 
-float update_timer_counter = 0;
 float ph_target = 7.0;
+float rst_hold_counter;
+float update_timer_counter;
 
 SimpleTimer Timer;
 WiFiManager WifiMgr;
@@ -42,6 +44,10 @@ BLYNK_WRITE(PIN_WORKER) {
     }
 }
 
+BLYNK_WRITE(PIN_RESET) {
+    rst_checker = param.asInt();
+}
+
 BLYNK_WRITE(PIN_PH_TARGET) {
     ph_target = param.asFloat();
 }
@@ -51,11 +57,18 @@ BLYNK_WRITE(PIN_UPDATE_TIMER) {
 }
 
 
-void wm_config(void) {
+void wm_setup(void) {
     WifiMgr.setDarkMode(WM_DARKMODE);
     WifiMgr.setDebugOutput(WM_DEBUG);
     WifiMgr.setSaveConfigCallback(wm_savecallback);
     WifiMgr.setConfigPortalBlocking(!WM_NONBLOCKING);
+}
+
+void wm_reset(void) {
+    debug("Resetting...");
+
+    WifiMgr.resetSettings();
+    ESP.restart();
 }
 
 void wm_savecallback(void) {
@@ -63,6 +76,17 @@ void wm_savecallback(void) {
     ESP.restart();
 }
 
+
+void rstcheck(void) {
+    if (rst_checker) {
+        rst_hold_counter += DELAY_TIME/100;
+    } else {
+        rst_hold_counter = 0;
+    }
+    if (rst_checker && (rst_hold_counter >= DELAY_TIME * RST_HOLDSECOND)) {
+        wm_reset();
+    }
+}
 
 void update(void) {
     update_timer_counter += DELAY_TIME/100;
@@ -90,7 +114,7 @@ void reset(void) {
 }
 
 void stop(void) {
-    
+    reset();
 }
 
 
@@ -99,7 +123,7 @@ void setup(void) {
     pinMode(LED_BUILTIN, OUTPUT);
 
     Serial.begin(115200);
-    wm_config();
+    wm_setup();
 
     if (WifiMgr.autoConnect(WM_SSID)) {
         Blynk.begin(
@@ -127,7 +151,10 @@ void loop(void) {
 
     if (Blynk.connected()) {
         update();
+    } else {
+        digitalWrite(BUILTIN_LED, LOW);
     }
 
+    rstcheck();
     delay(DELAY_TIME);
 }
