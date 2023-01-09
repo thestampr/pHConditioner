@@ -27,15 +27,6 @@ TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
 
 
-String get_param(String name) {
-    String value;
-    if (WifiMgr.server->hasArg(name)) {
-        value = WifiMgr.server->arg(name);
-    }
-    return value;
-}
-
-
 BLYNK_CONNECTED() {
     Blynk.syncAll();
     Blynk.virtualWrite(PIN_VERSION, VERSION);
