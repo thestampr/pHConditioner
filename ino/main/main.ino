@@ -11,8 +11,8 @@
 #include "utils\utils.h"
 #include "utils\enums.h"
 
-#include "Models\pHSensor.h"
-#include "Models\TempSensor.h"
+#include "models\pHSensor.h"
+#include "models\TempSensor.h"
 
 
 int working;
@@ -175,7 +175,6 @@ void setup(void) {
             BLYNK_CLOUD, 
             80
         );
-        debug("Connected");
     } else {
         debug("Connect failed");
         Serial.println("Connect to " + String(WM_SSID) + " for wifi configuration.");

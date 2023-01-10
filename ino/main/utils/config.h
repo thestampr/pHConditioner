@@ -31,7 +31,7 @@
 #define WM_NONBLOCKING 1
 #define WM_DARKMODE 1
 
-#define DANGER_HOLD_SEC 5
+#define DANGER_HOLD_SEC 3
 
 const float DELAY_TIME = 10; // millisecs
 const float ERROR_RATE = 10; // percent
