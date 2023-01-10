@@ -4,7 +4,6 @@
 
 #include <WiFiManager.h>
 #include <BlynkSimpleEsp8266.h>
-#include <SimpleTimer.h>
 
 #include "utils\config.h"
 #include "utils\secret.h"
@@ -16,22 +15,33 @@
 
 
 int working;
-int rss_checker; // reset
-int rst_checker; // restart
+int reset_checker;
+int restart_checker;
 int sync_clock = 1;
 
 float ph_target = 7.0;
-float rss_hold_counter;
-float rst_hold_counter;
 float sync_clock_counter;
 
 bool do_sync = false;
 
-SimpleTimer Timer;
-WiFiManager WifiMgr;
+unsigned long blocking_code_runtime;
+unsigned long blocking_code_endtime;
+unsigned long last_sync;
+unsigned long last_reset_hold;
+unsigned long last_restart_hold;
 
+WiFiManager WifiMgr;
 TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
+
+
+void dynamic_delay(void) {
+    if (blocking_code_endtime > millis()) {
+        delay(blocking_code_endtime - millis());
+    }
+    blocking_code_runtime = millis();
+    blocking_code_endtime = blocking_code_runtime + DELAY_TIME;
+}
 
 
 BLYNK_CONNECTED() {
@@ -58,11 +68,13 @@ BLYNK_WRITE(PIN_WORKER) {
 }
 
 BLYNK_WRITE(PIN_RESET) {
-    rss_checker = param.asInt();
+    reset_checker = param.asInt();
+    if (reset_checker) last_reset_hold = millis();
 }
 
 BLYNK_WRITE(PIN_RESTART) {
-    rst_checker = param.asInt();
+    restart_checker = param.asInt();
+    if (restart_checker) last_restart_hold = millis();
 }
 
 BLYNK_WRITE(PIN_PH_TARGET) {
@@ -93,33 +105,31 @@ void wm_savecallback(void) {
 }
 
 
-void rsscheck(void) {
-    if (rss_checker) {
-        rss_hold_counter += DELAY_TIME/100;
-    } else {
-        rss_hold_counter = 0;
-    }
-    if (rss_checker && (rss_hold_counter >= DELAY_TIME * DANGER_HOLD_SEC)) {
+void reset_check(void) {
+    if (reset_checker && (millis() - last_reset_hold >= DANGER_HOLD_SEC * 1000)) {
         wm_reset();
     }
 }
 
-void rstcheck(void) {
-    if (rst_checker) {
-        rst_hold_counter += DELAY_TIME/100;
-    } else {
-        rst_hold_counter = 0;
-    }
-    if (rst_checker && (rst_hold_counter >= DELAY_TIME * DANGER_HOLD_SEC)) {
+void restart_check(void) {
+    if (restart_checker && (millis() - last_restart_hold >= DANGER_HOLD_SEC * 1000)) {
         restart();
     }
 }
 
 
 void restart(void) {
-    debug("Restarting...");
     do_sync = false;
+
+    while (restart_checker && Blynk.connected()) {
+        Blynk.run();
+        digitalWrite(BUILTIN_LED, LOW);
+        delay(10);
+    }
+    digitalWrite(BUILTIN_LED, HIGH);
     if (Blynk.connected()) Blynk.virtualWrite(PIN_STATUS, State.restarting);
+
+    debug("Restarting...");
     ESP.restart();
 }
 
@@ -137,26 +147,30 @@ void stop(void) {
 
 void sync(void) {
     if (do_sync) {
-        sync_clock_counter += DELAY_TIME/100;
-
-        if (sync_clock_counter >= DELAY_TIME * sync_clock) {
+        if (millis() - last_sync >= sync_clock * 1000) {
             // Send data every sync_clock
 
             // debug("pH:" + String(Ph.value) + ", Temp:" + String(Temp.value));
 
+            last_sync = millis();
             digitalWrite(BUILTIN_LED, LOW);
 
             Blynk.virtualWrite(PIN_PH, Ph.value);
             Blynk.virtualWrite(PIN_TEMP, Temp.value);
 
+            digitalWrite(BUILTIN_LED, HIGH);
+
             if (working) Blynk.virtualWrite(PIN_STATUS, State.working);
             else Blynk.virtualWrite(PIN_STATUS, State.idle);
-
-            sync_clock_counter = 0;
         } else {
             digitalWrite(BUILTIN_LED, HIGH);
         }
     }
+}
+
+void run_process(void) {
+    Ph.get();
+    Temp.get();
 }
 
 
@@ -180,23 +194,22 @@ void setup(void) {
         Serial.println("Connect to " + String(WM_SSID) + " for wifi configuration.");
     }
 
-    Timer.setInterval(1000L, [&]() { Ph.get(); });
-    Timer.setInterval(1000L, [&]() { Temp.get(); });
+    last_sync = millis();
 }
 
 void loop(void) {
-    if (WM_NONBLOCKING) WifiMgr.process();
+    dynamic_delay();
 
     Blynk.run();
-    Timer.run();
+    run_process();
 
     if (Blynk.connected()) {
         sync();
     } else {
         digitalWrite(BUILTIN_LED, LOW);
     }
+    if (WM_NONBLOCKING) WifiMgr.process();
 
-    rstcheck();
-    rsscheck();
-    delay(DELAY_TIME);
+    reset_check();
+    restart_check();
 }
