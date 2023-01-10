@@ -1,8 +1,8 @@
-// Project constant
+// config.h
 
 #pragma once
 
-#define VERSION "2.0.2"
+#define VERSION "2.0.3"
 
 // Debug
 #define DEBUG 1
@@ -20,8 +20,10 @@
 #define PIN_PH V3
 #define PIN_PH_TARGET V4
 #define PIN_PROCESS V5
-#define PIN_UPDATE_TIMER V6
+#define PIN_SYNC_CLOCK V6
 #define PIN_RESET V7
+#define PIN_RESTART V8
+#define PIN_STATUS V9
 
 #define BLYNK_CLOUD "blynk.cloud"
 
@@ -29,8 +31,7 @@
 #define WM_NONBLOCKING 1
 #define WM_DARKMODE 1
 
-#define RST_HOLDSECOND 3
+#define DANGER_HOLD_SEC 5
 
-const float DELAY_TIME = 10;
-
-const int EEPROM_MAX_LENGTH = 32;
+const float DELAY_TIME = 10; // millisecs
+const float ERROR_RATE = 10; // percent
