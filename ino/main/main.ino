@@ -20,7 +20,6 @@ int restart_checker;
 int sync_clock = 1;
 
 float ph_target = 7.0;
-float sync_clock_counter;
 
 bool do_sync = false;
 
