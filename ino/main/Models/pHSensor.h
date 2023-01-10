@@ -15,8 +15,6 @@ class pHSensor {
         }
         
         float get(void) {
-            // call this in `SimpleTimer.setInterval` to prevent from delay
-
             unsigned long int avgval;
             int buffer_arr[10], temp;
 

@@ -5,8 +5,6 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
-#include "..\utils.h"
-
 
 class TempSensor {
     public:
@@ -21,8 +19,6 @@ class TempSensor {
         }
 
         float get(void) {
-            // call this in `SimpleTimer.setInterval` to prevent from delay
-
             Sensor.requestTemperatures();
             value = Sensor.getTempCByIndex(0);
             return value;
