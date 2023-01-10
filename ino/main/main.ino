@@ -36,10 +36,10 @@ pHSensor Ph(ANALOG_PH);
 
 
 void dynamic_delay(void) {
-    if (blocking_code_endtime > millis()) {
-        delay(blocking_code_endtime - millis());
-    }
     blocking_code_runtime = millis();
+    if (blocking_code_endtime > blocking_code_runtime) {
+        delay(blocking_code_endtime - blocking_code_runtime);
+    }
     blocking_code_endtime = blocking_code_runtime + DELAY_TIME;
 }
 
