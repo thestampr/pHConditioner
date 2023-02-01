@@ -104,6 +104,11 @@ void wm_savecallback(void) {
 }
 
 
+void checks(void) {
+    reset_check();
+    restart_check();
+}
+
 void reset_check(void) {
     if (reset_checker && (millis() - last_reset_hold >= DANGER_HOLD_SEC * 1000)) {
         wm_reset();
@@ -178,22 +183,36 @@ void setup(void) {
     pinMode(LED_BUILTIN, OUTPUT);
 
     Serial.begin(115200);
-    wm_setup();
 
-    if (WifiMgr.autoConnect(WM_SSID)) {
+    if (DEBUG) {
+        Serial.println("Debug mode, auto connecting...");
+
         Blynk.begin(
             BLYNK_AUTH_TOKEN, 
-            WifiMgr.getWiFiSSID().c_str(), 
-            WifiMgr.getWiFiPass().c_str(), 
+            SSID, 
+            PASS, 
             BLYNK_CLOUD, 
             80
         );
     } else {
-        debug("Connect failed");
-        Serial.println("Connect to " + String(WM_SSID) + " for wifi configuration.");
+        wm_setup();
+
+        if (WifiMgr.autoConnect(WM_SSID)) {
+            Blynk.begin(
+                BLYNK_AUTH_TOKEN, 
+                WifiMgr.getWiFiSSID().c_str(), 
+                WifiMgr.getWiFiPass().c_str(), 
+                BLYNK_CLOUD, 
+                80
+            );
+        } else {
+            debug("Connect failed.");
+            Serial.println("Connect to " + String(WM_SSID) + " for wifi configuration.");
+        }
     }
 
     last_sync = millis();
+    debug("Setup completed.");
 }
 
 void loop(void) {
@@ -209,6 +228,5 @@ void loop(void) {
     }
     if (WM_NONBLOCKING) WifiMgr.process();
 
-    reset_check();
-    restart_check();
+    checks();
 }

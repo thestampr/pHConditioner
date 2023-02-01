@@ -20,6 +20,7 @@ class pHSensor {
 
             for (int i = 0; i < 10; i++) {
                 buffer_arr[i] = analogRead(pin);
+                Serial.println(buffer_arr[i]);
                 delay(10);
             }
             for (int i = 0; i < 9; i++) {
@@ -38,5 +39,7 @@ class pHSensor {
             float milli_volt = (float)avgval * 5.0 / 1024 / 6;
             value = (milli_volt * 3.5) + PH_CALIBRATION;
             return value;
+
+
         }
 };
