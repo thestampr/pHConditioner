@@ -2,9 +2,8 @@
 
 #pragma once
 
-#ifndef DEBUG
-#define DEBUG 0
-#endif // DEBUG
+#include "config.h"
+
 
 /**
  * Prints a debug message to the serial port.
@@ -14,6 +13,16 @@
 template <typename Printable>
 void debug(Printable message) {
     if (DEBUG) Serial.println("DEBUG: " + String(message));
+}
+/**
+ * Prints a log message to the serial port and blynk if connected.
+ *
+ * @param message The debug message or data to be printed.
+ */
+template <typename Printable>
+void log(Printable message) {
+    Serial.println("LOG: " + String(message));
+    if (Blynk.connected()) Blynk.virtualWrite(PIN_TERMINAL, String(message));
 }
 
 /**
@@ -26,6 +35,7 @@ void debug(Printable message) {
  * @param out_max The maximum of the output range.
  * @return The mapped value.
  */
+// template <typename Numeric>
 float float_map(float x, float in_min, float in_max, float out_min, float out_max) {
     // Calculate the mapped value using the formula:
     // (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min

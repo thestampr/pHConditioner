@@ -2,11 +2,12 @@
 
 #pragma once
 
-#define VERSION "2.1.1"
+#define VERSION "2.1.2"
 
 // Debug
 #define DEBUG 1
 #define WM_DEBUG 0
+#define RAW_SENSOR 1
 
 // Pins
 #define LED D0
@@ -24,6 +25,7 @@
 #define PIN_RESET V7
 #define PIN_RESTART V8
 #define PIN_STATUS V9
+#define PIN_TERMINAL V10
 
 #define BLYNK_CLOUD "blynk.cloud"
 

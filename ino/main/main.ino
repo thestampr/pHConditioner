@@ -19,8 +19,6 @@ int reset_checker;
 int restart_checker;
 int sync_clock = 1;
 
-float ph_target = 7.0;
-
 bool do_sync = false;
 
 unsigned long blocking_code_runtime;
@@ -44,15 +42,21 @@ void dynamic_delay(void) {
 
 
 BLYNK_CONNECTED() {
-    debug("Blynk connectd");
     Blynk.syncAll();
     Blynk.virtualWrite(PIN_VERSION, VERSION);
     Blynk.virtualWrite(PIN_STATUS, State.connected);
+
+    if (DEBUG) {
+        log("Connected to " + String(SSID));
+    } else {
+        log("Connected to " + String(WifiMgr.getWiFiSSID().c_str()));
+    }
+
     do_sync = true;
 }
 
 BLYNK_DISCONNECTED() {
-    debug("Blynk disconnectd");
+    debug("Disconnected");
     do_sync = false;
 }
 
@@ -60,7 +64,7 @@ BLYNK_WRITE(PIN_WORKER) {
     digitalWrite(LED, param.asInt());
     working = param.asInt();
     if (param.asInt()) {
-        debug("Starting, target=" + String(ph_target));
+        log("Working, pHtarget=" + String(Ph.target));
     } else {
         stop();
     }
@@ -77,7 +81,7 @@ BLYNK_WRITE(PIN_RESTART) {
 }
 
 BLYNK_WRITE(PIN_PH_TARGET) {
-    ph_target = param.asFloat();
+    Ph.target = param.asFloat();
 }
 
 BLYNK_WRITE(PIN_SYNC_CLOCK) {
@@ -93,7 +97,7 @@ void wm_setup(void) {
 }
 
 void wm_reset(void) {
-    debug("Resetting...");
+    log("Resetting...");
     Blynk.virtualWrite(PIN_STATUS, State.resetting);
     WifiMgr.resetSettings();
     ESP.restart();
@@ -133,7 +137,7 @@ void restart(void) {
     digitalWrite(BUILTIN_LED, HIGH);
     if (Blynk.connected()) Blynk.virtualWrite(PIN_STATUS, State.restarting);
 
-    debug("Restarting...");
+    log("Restarting...");
     ESP.restart();
 }
 
@@ -206,13 +210,13 @@ void setup(void) {
                 80
             );
         } else {
-            debug("Connect failed.");
+            debug("Connect failed");
             Serial.println("Connect to " + String(WM_SSID) + " for wifi configuration.");
         }
     }
 
     last_sync = millis();
-    debug("Setup completed.");
+    debug("Setup completed");
 }
 
 void loop(void) {

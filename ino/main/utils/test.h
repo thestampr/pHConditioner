@@ -1,5 +1,12 @@
 // test.h
 
-#pragma once
+#ifdef DEBUG
 
-#define TEST_PIN D8
+#pragma once
+#ifndef TEST
+#define TEST
+#endif // TEST
+
+#define TEST_PIN_1 D8
+
+#endif // DEBUG
