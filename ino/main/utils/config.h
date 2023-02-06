@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define VERSION "2.1.2"
+#define VERSION "2.1.3"
 
 // Debug
 #define DEBUG 1
@@ -36,4 +36,4 @@
 #define DANGER_HOLD_SEC 3
 
 const float DELAY_TIME = 350; // millisecs
-const float ERROR_RATE = 10; // percent
+const float good_RANGE = 0.20; // value

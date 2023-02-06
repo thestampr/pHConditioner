@@ -10,6 +10,7 @@
 #include "utils\utils.h"
 #include "utils\enums.h"
 
+#include "models\Motor.h"
 #include "models\pHSensor.h"
 #include "models\TempSensor.h"
 
@@ -18,6 +19,8 @@ int working;
 int reset_checker;
 int restart_checker;
 int sync_clock = 1;
+
+float process;
 
 bool do_sync = false;
 
@@ -30,6 +33,7 @@ unsigned long last_restart_hold;
 WiFiManager WifiMgr;
 TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
+MotorPump Motor1(D1);
 
 
 void dynamic_delay(void) {
@@ -64,6 +68,7 @@ BLYNK_WRITE(PIN_WORKER) {
     digitalWrite(LED, param.asInt());
     working = param.asInt();
     if (param.asInt()) {
+        Ph.start = Ph.value;
         log("Working, pHtarget=" + String(Ph.target));
     } else {
         stop();
@@ -143,6 +148,7 @@ void restart(void) {
 
 void reset(void) {
     working = 0;
+    process = 0;
 
     Blynk.virtualWrite(PIN_WORKER, 0);
     Blynk.virtualWrite(PIN_PROCESS, 0);
@@ -168,7 +174,10 @@ void sync(void) {
 
             digitalWrite(BUILTIN_LED, HIGH);
 
-            if (working) Blynk.virtualWrite(PIN_STATUS, State.working);
+            if (working) {
+                Blynk.virtualWrite(PIN_STATUS, State.working);
+                Blynk.virtualWrite(PIN_PROCESS, process);
+            }
             else Blynk.virtualWrite(PIN_STATUS, State.idle);
         } else {
             digitalWrite(BUILTIN_LED, HIGH);
@@ -176,9 +185,36 @@ void sync(void) {
     }
 }
 
-void run_process(void) {
+void get_sensor(void) {
     Ph.get();
     Temp.get();
+}
+
+void run_process(void) {
+    get_sensor();
+
+    if (working) {
+        /**
+         * @brief compare ph value
+         * 
+         * if (Ph.target - GOOF_RANGE) <= Ph.value <= (Ph.target + GOOF_RANGE)
+         *      done()
+         * else 
+         *      if Ph.value < Ph.target
+         *          acid()
+         *      else // value > target
+         *          base()
+         */
+
+        Motor1.run();
+    } else {
+        /**
+         * @brief stop all motors
+         * 
+         */
+
+        Motor1.stop();
+    }
 }
 
 
@@ -216,14 +252,15 @@ void setup(void) {
     }
 
     last_sync = millis();
+    get_sensor();
     debug("Setup completed");
 }
 
 void loop(void) {
     dynamic_delay();
 
-    Blynk.run();
     run_process();
+    Blynk.run();
 
     if (Blynk.connected()) {
         sync();
