@@ -2,17 +2,22 @@
 
 #pragma once
 
-#define VERSION "2.1.3"
+#define VERSION "2.1.4"
 
 // Debug
 #define DEBUG 1
 #define WM_DEBUG 0
-#define RAW_SENSOR 1
+#define RAW_SENSOR 0
+#define TEST 0
 
 // Pins
 #define LED D0
 #define ONE_WIRE_BUS D5
 #define ANALOG_PH A0
+
+#define BASE_PIN D1
+#define ACID_PIN D2
+#define FLOW_PIN D3
 
 // Virtual pins
 #define PIN_VERSION V0
@@ -36,4 +41,4 @@
 #define DANGER_HOLD_SEC 3
 
 const float DELAY_TIME = 350; // millisecs
-const float good_RANGE = 0.20; // value
+const float GOOD_RANGE = 0.20; // value

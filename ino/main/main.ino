@@ -20,7 +20,7 @@ int reset_checker;
 int restart_checker;
 int sync_clock = 1;
 
-float process;
+float percent;
 
 bool do_sync = false;
 
@@ -33,7 +33,10 @@ unsigned long last_restart_hold;
 WiFiManager WifiMgr;
 TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
-MotorPump Motor1(D1);
+
+MotorPump BasePump(BASE_PIN);
+MotorPump AcidPump(ACID_PIN);
+MotorPump FlowPump(FLOW_PIN, false);
 
 
 void dynamic_delay(void) {
@@ -51,9 +54,9 @@ BLYNK_CONNECTED() {
     Blynk.virtualWrite(PIN_STATUS, State.connected);
 
     if (DEBUG) {
-        log("Connected to " + String(SSID));
+        logger("Connected to " + String(SSID));
     } else {
-        log("Connected to " + String(WifiMgr.getWiFiSSID().c_str()));
+        logger("Connected to " + String(WifiMgr.getWiFiSSID().c_str()));
     }
 
     do_sync = true;
@@ -65,11 +68,10 @@ BLYNK_DISCONNECTED() {
 }
 
 BLYNK_WRITE(PIN_WORKER) {
-    digitalWrite(LED, param.asInt());
     working = param.asInt();
     if (param.asInt()) {
         Ph.start = Ph.value;
-        log("Working, pHtarget=" + String(Ph.target));
+        logger("Working, pHtarget=" + String(Ph.target));
     } else {
         stop();
     }
@@ -102,7 +104,7 @@ void wm_setup(void) {
 }
 
 void wm_reset(void) {
-    log("Resetting...");
+    logger("Resetting...");
     Blynk.virtualWrite(PIN_STATUS, State.resetting);
     WifiMgr.resetSettings();
     ESP.restart();
@@ -142,13 +144,13 @@ void restart(void) {
     digitalWrite(BUILTIN_LED, HIGH);
     if (Blynk.connected()) Blynk.virtualWrite(PIN_STATUS, State.restarting);
 
-    log("Restarting...");
+    logger("Restarting...");
     ESP.restart();
 }
 
 void reset(void) {
     working = 0;
-    process = 0;
+    percent = 0;
 
     Blynk.virtualWrite(PIN_WORKER, 0);
     Blynk.virtualWrite(PIN_PROCESS, 0);
@@ -176,7 +178,7 @@ void sync(void) {
 
             if (working) {
                 Blynk.virtualWrite(PIN_STATUS, State.working);
-                Blynk.virtualWrite(PIN_PROCESS, process);
+                Blynk.virtualWrite(PIN_PROCESS, percent);
             }
             else Blynk.virtualWrite(PIN_STATUS, State.idle);
         } else {
@@ -193,11 +195,13 @@ void get_sensor(void) {
 void run_process(void) {
     get_sensor();
 
+    digitalWrite(LED, working);
+
     if (working) {
         /**
-         * @brief compare ph value
+         * @brief first, compare ph value
          * 
-         * if (Ph.target - GOOF_RANGE) <= Ph.value <= (Ph.target + GOOF_RANGE)
+         * if Ph value in +- good range
          *      done()
          * else 
          *      if Ph.value < Ph.target
@@ -206,14 +210,51 @@ void run_process(void) {
          *          base()
          */
 
-        Motor1.run();
+        // BUG
+
+        if (((Ph.target - GOOD_RANGE) < Ph.value) && (Ph.value < (Ph.target + GOOD_RANGE))) {
+            stop();
+            logger("done.");
+        } else {
+            percent = Ph.percent();
+
+            if (Ph.value < Ph.target) {
+                AcidPump.run();
+                BasePump.stop();
+            } else {
+                BasePump.run();
+                AcidPump.stop();
+            }
+            FlowPump.run();
+        }
     } else {
         /**
-         * @brief stop all motors
+         * @brief then, stop all motors
          * 
          */
 
-        Motor1.stop();
+        BasePump.stop();
+        AcidPump.stop();
+        FlowPump.stop(5000);
+    }
+}
+
+void run_tester(void) {
+    get_sensor();
+
+    if (working) {
+        /**
+         * @brief run motor with "run_time", "end_time" parameters
+         */
+
+        BasePump.run(RUN_TIME, 1000);
+    } else {
+        /**
+         * @brief stop motor with "after" parameter
+         * 
+         */
+
+        BasePump.stop(3000);
     }
 }
 
@@ -259,7 +300,9 @@ void setup(void) {
 void loop(void) {
     dynamic_delay();
 
-    run_process();
+    if (TEST) run_tester();
+    else run_process();
+
     Blynk.run();
 
     if (Blynk.connected()) {

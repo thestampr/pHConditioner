@@ -15,12 +15,12 @@ void debug(Printable message) {
     if (DEBUG) Serial.println("DEBUG: " + String(message));
 }
 /**
- * Prints a log message to the serial port and blynk if connected.
+ * Prints a logger message to the serial port and blynk if connected.
  *
  * @param message The debug message or data to be printed.
  */
 template <typename Printable>
-void log(Printable message) {
+void logger(Printable message) {
     Serial.println("LOG: " + String(message));
     if (Blynk.connected()) Blynk.virtualWrite(PIN_TERMINAL, String(message));
 }
@@ -37,7 +37,12 @@ void log(Printable message) {
  */
 // template <typename Numeric>
 float float_map(float x, float in_min, float in_max, float out_min, float out_max) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    float out = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    
+    if (out < out_min) out = out_min;
+    else if (out > out_max) out = out_max;
+
+    return out;
 }
 
 /**

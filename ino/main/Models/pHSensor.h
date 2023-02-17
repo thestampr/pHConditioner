@@ -49,7 +49,7 @@ class pHSensor {
         float get_backup(void) {
             unsigned long int avgval;
             int buffer_arr[10], temp;
-            float read_buffer = 0.0;
+            float read_buffer;
 
             for (int i = 0; i < 10; i++) {
                 buffer_arr[i] = analogRead(pin);
@@ -62,5 +62,10 @@ class pHSensor {
             // float milli_volt = (float)avgval * VOLTAGE / 1024 / CALIBRATION;
             value = float_map(avgval, 0.0, 1024.0, 1.0, 14.0);
             return value;
+        }
+
+        float percent(void) {
+            float _percent = float_map(value, start, target, 0, 100);
+            return _percent;
         }
 };
