@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define VERSION "2.1.4"
+#define VERSION "2.1.5"
 
 // Debug
 #define DEBUG 1
@@ -31,6 +31,7 @@
 #define PIN_RESTART V8
 #define PIN_STATUS V9
 #define PIN_TERMINAL V10
+#define PIN_GOODRANGE V11
 
 #define BLYNK_CLOUD "blynk.cloud"
 
@@ -41,4 +42,3 @@
 #define DANGER_HOLD_SEC 3
 
 const float DELAY_TIME = 350; // millisecs
-const float GOOD_RANGE = 0.20; // value

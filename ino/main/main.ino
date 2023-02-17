@@ -19,6 +19,7 @@ int working;
 int reset_checker;
 int restart_checker;
 int sync_clock = 1;
+float good_range = 0.2;
 
 float percent;
 
@@ -93,6 +94,10 @@ BLYNK_WRITE(PIN_PH_TARGET) {
 
 BLYNK_WRITE(PIN_SYNC_CLOCK) {
     sync_clock = param.asInt();
+}
+
+BLYNK_WRITE(PIN_GOODRANGE) {
+    good_range = param.asFloat();
 }
 
 
@@ -212,7 +217,7 @@ void run_process(void) {
 
         // BUG
 
-        if (((Ph.target - GOOD_RANGE) < Ph.value) && (Ph.value < (Ph.target + GOOD_RANGE))) {
+        if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
             stop();
             logger("done.");
         } else {
