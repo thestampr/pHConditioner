@@ -45,9 +45,14 @@ void dynamic_delay(void) {
 
     blocking_code_runtime = millis();
     if (blocking_code_endtime > blocking_code_runtime) {
-        delay(blocking_code_endtime - blocking_code_runtime);
+        delay(blocking_code_endtime - millis());
     }
     blocking_code_endtime = blocking_code_runtime + DELAY_TIME;
+}
+
+void get_sensor(void) {
+    Ph.get();
+    Temp.get();
 }
 
 
@@ -82,7 +87,7 @@ BLYNK_WRITE(PIN_WORKER) {
         }
         logger("Working, pHtarget=" + String(Ph.target));
     } else {
-        stop();
+        stop_process();
     }
 }
 
@@ -117,6 +122,15 @@ void wm_setup(void) {
 }
 
 void wm_reset(void) {
+    stop();
+
+    while (reset_checker && Blynk.connected()) {
+        Blynk.run();
+        digitalWrite(BUILTIN_LED, LOW);
+        delay(10);
+    }
+    digitalWrite(BUILTIN_LED, HIGH);
+
     logger("Resetting...");
     WifiMgr.resetSettings();
     ESP.restart();
@@ -145,31 +159,6 @@ void restart_check(void) {
 }
 
 
-void restart(void) {
-    do_sync = false;
-
-    while (restart_checker && Blynk.connected()) {
-        Blynk.run();
-        digitalWrite(BUILTIN_LED, LOW);
-        delay(10);
-    }
-    digitalWrite(BUILTIN_LED, HIGH);
-
-    logger("Restarting...");
-    ESP.restart();
-}
-
-void reset(void) {
-    working = 0;
-    percent = 0;
-
-    Blynk.virtualWrite(PIN_WORKER, 0);
-}
-
-void stop(void) {
-    reset();
-}
-
 void sync(void) {
     if (do_sync) {
         unsigned long now = millis();
@@ -192,11 +181,6 @@ void sync(void) {
     }
 }
 
-void get_sensor(void) {
-    Ph.get();
-    Temp.get();
-}
-
 void run_process(void) {
     get_sensor();
 
@@ -216,7 +200,7 @@ void run_process(void) {
         // BUG
 
         if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
-            stop();
+            stop_process();
             logger("done.");
         } else {
             percent = Ph.percent();
@@ -242,6 +226,41 @@ void run_process(void) {
     }
 
     digitalWrite(LED, working);
+}
+
+void stop_process(void) {
+    reset();
+}
+
+
+void restart(void) {
+    stop();
+
+    while (restart_checker && Blynk.connected()) {
+        Blynk.run();
+        digitalWrite(BUILTIN_LED, LOW);
+        delay(10);
+    }
+    digitalWrite(BUILTIN_LED, HIGH);
+
+    logger("Restarting...");
+    ESP.restart();
+}
+
+void reset(void) {
+    working = 0;
+    percent = 0;
+
+    Blynk.virtualWrite(PIN_WORKER, 0);
+}
+
+void stop(void) {
+    do_sync = false;
+    
+    BasePump.stop();
+    AcidPump.stop();
+    FlowPump.stop();
+    digitalWrite(LED, LOW);
 }
 
 
