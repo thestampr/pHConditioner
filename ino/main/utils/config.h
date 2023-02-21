@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define VERSION "2.1.5"
+#define VERSION "2.2.1"
 
 // Debug
 #define DEBUG 1
@@ -29,9 +29,10 @@
 #define PIN_SYNC_CLOCK V6
 #define PIN_RESET V7
 #define PIN_RESTART V8
-#define PIN_STATUS V9
-#define PIN_TERMINAL V10
-#define PIN_GOODRANGE V11
+#define PIN_GOODRANGE V9
+// #define PIN_STATUS V9
+// #define PIN_TERMINAL V10
+// Limit to 10 pins for free plan
 
 #define BLYNK_CLOUD "blynk.cloud"
 
@@ -39,6 +40,6 @@
 #define WM_NONBLOCKING 1
 #define WM_DARKMODE 1
 
-#define DANGER_HOLD_SEC 3
+#define DANGER_HOLD_SEC 3 // seconds
 
-const float DELAY_TIME = 350; // millisecs
+#define DELAY_TIME 350 // milliseconds

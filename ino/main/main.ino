@@ -52,7 +52,6 @@ void dynamic_delay(void) {
 BLYNK_CONNECTED() {
     Blynk.syncAll();
     Blynk.virtualWrite(PIN_VERSION, VERSION);
-    Blynk.virtualWrite(PIN_STATUS, State.connected);
 
     if (DEBUG) {
         logger("Connected to " + String(SSID));
@@ -110,7 +109,6 @@ void wm_setup(void) {
 
 void wm_reset(void) {
     logger("Resetting...");
-    Blynk.virtualWrite(PIN_STATUS, State.resetting);
     WifiMgr.resetSettings();
     ESP.restart();
 }
@@ -147,7 +145,6 @@ void restart(void) {
         delay(10);
     }
     digitalWrite(BUILTIN_LED, HIGH);
-    if (Blynk.connected()) Blynk.virtualWrite(PIN_STATUS, State.restarting);
 
     logger("Restarting...");
     ESP.restart();
@@ -159,7 +156,6 @@ void reset(void) {
 
     Blynk.virtualWrite(PIN_WORKER, 0);
     Blynk.virtualWrite(PIN_PROCESS, 0);
-    Blynk.virtualWrite(PIN_STATUS, State.idle);
 }
 
 void stop(void) {
@@ -182,10 +178,8 @@ void sync(void) {
             digitalWrite(BUILTIN_LED, HIGH);
 
             if (working) {
-                Blynk.virtualWrite(PIN_STATUS, State.working);
                 Blynk.virtualWrite(PIN_PROCESS, percent);
             }
-            else Blynk.virtualWrite(PIN_STATUS, State.idle);
         } else {
             digitalWrite(BUILTIN_LED, HIGH);
         }

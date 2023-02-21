@@ -22,7 +22,7 @@ void debug(Printable message) {
 template <typename Printable>
 void logger(Printable message) {
     Serial.println("LOG: " + String(message));
-    if (Blynk.connected()) Blynk.virtualWrite(PIN_TERMINAL, String(message));
+    // if (Blynk.connected()) Blynk.virtualWrite(PIN_TERMINAL, String(message));
 }
 
 /**
