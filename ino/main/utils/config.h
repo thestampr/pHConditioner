@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define VERSION "2.2.1"
+#define VERSION "2.2.2"
 
 // Debug
 #define DEBUG 1
@@ -29,7 +29,7 @@
 #define PIN_SYNC_CLOCK V6
 #define PIN_RESET V7
 #define PIN_RESTART V8
-#define PIN_GOODRANGE V9
+#define PIN_GOOD_RANGE V9 // V11 for default
 // #define PIN_STATUS V9
 // #define PIN_TERMINAL V10
 // Limit to 10 pins for free plan

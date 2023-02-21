@@ -41,6 +41,8 @@ MotorPump FlowPump(FLOW_PIN, false);
 
 
 void dynamic_delay(void) {
+    // If the time until calling the function again is less than DELAY_TIME, delay for the remaining time.
+
     blocking_code_runtime = millis();
     if (blocking_code_endtime > blocking_code_runtime) {
         delay(blocking_code_endtime - blocking_code_runtime);
@@ -50,7 +52,10 @@ void dynamic_delay(void) {
 
 
 BLYNK_CONNECTED() {
+    // Sync priority
+    Blynk.syncVirtual(PIN_PH_TARGET);
     Blynk.syncAll();
+    
     Blynk.virtualWrite(PIN_VERSION, VERSION);
 
     if (DEBUG) {
@@ -69,8 +74,12 @@ BLYNK_DISCONNECTED() {
 
 BLYNK_WRITE(PIN_WORKER) {
     working = param.asInt();
-    if (param.asInt()) {
-        Ph.start = Ph.value;
+    if (working) {
+        if (do_sync) {
+            Ph.start = Ph.value;
+        } else {
+            Ph.start = Ph.get();
+        }
         logger("Working, pHtarget=" + String(Ph.target));
     } else {
         stop();
@@ -95,7 +104,7 @@ BLYNK_WRITE(PIN_SYNC_CLOCK) {
     sync_clock = param.asInt();
 }
 
-BLYNK_WRITE(PIN_GOODRANGE) {
+BLYNK_WRITE(PIN_GOOD_RANGE) {
     good_range = param.asFloat();
 }
 
@@ -194,8 +203,6 @@ void get_sensor(void) {
 void run_process(void) {
     get_sensor();
 
-    digitalWrite(LED, working);
-
     if (working) {
         /**
          * @brief first, compare ph value
@@ -236,6 +243,8 @@ void run_process(void) {
         AcidPump.stop();
         FlowPump.stop(5000);
     }
+
+    digitalWrite(LED, working);
 }
 
 void run_tester(void) {
@@ -299,9 +308,7 @@ void setup(void) {
 void loop(void) {
     dynamic_delay();
 
-    if (TEST) run_tester();
-    else run_process();
-
+    run_process();
     Blynk.run();
 
     if (Blynk.connected()) {
