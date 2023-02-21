@@ -164,7 +164,6 @@ void reset(void) {
     percent = 0;
 
     Blynk.virtualWrite(PIN_WORKER, 0);
-    Blynk.virtualWrite(PIN_PROCESS, 0);
 }
 
 void stop(void) {
@@ -173,22 +172,20 @@ void stop(void) {
 
 void sync(void) {
     if (do_sync) {
-        if (millis() - last_sync >= sync_clock * 1000) {
+        unsigned long now = millis();
+        if (now - last_sync >= sync_clock * 1000) {
             // Send data every sync_clock
 
             // debug("pH:" + String(Ph.value) + ", Temp:" + String(Temp.value));
 
-            last_sync = millis();
-            digitalWrite(BUILTIN_LED, LOW);
+            last_sync = now;
 
+            digitalWrite(BUILTIN_LED, LOW);
             Blynk.virtualWrite(PIN_PH, Ph.value);
             Blynk.virtualWrite(PIN_TEMP, Temp.value);
-
             digitalWrite(BUILTIN_LED, HIGH);
 
-            if (working) {
-                Blynk.virtualWrite(PIN_PROCESS, percent);
-            }
+            Blynk.virtualWrite(PIN_PROCESS, percent);
         } else {
             digitalWrite(BUILTIN_LED, HIGH);
         }

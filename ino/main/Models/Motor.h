@@ -40,6 +40,7 @@ class MotorPump {
                     if (state_runtime > state_endtime) {
                         state = 0;
                         change_state = 1;
+                        digitalWrite(pin, LOW);
                     }
                 } else {
                     if (change_state) {
@@ -50,6 +51,7 @@ class MotorPump {
                     if (state_runtime > state_endtime) {
                         state = 1;
                         change_state = 1;
+                        digitalWrite(pin, HIGH);
                     }
                 }
             } else {
@@ -61,7 +63,7 @@ class MotorPump {
         }
 
         void stop(int after = 0) {
-            if (state) {    
+            if (is_running) {    
                 if (!after) {
                     digitalWrite(pin, LOW);
                     state = 0;
