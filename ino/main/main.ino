@@ -55,7 +55,7 @@ BLYNK_CONNECTED() {
     // Sync priority
     Blynk.syncVirtual(PIN_PH_TARGET);
     Blynk.syncAll();
-    
+
     Blynk.virtualWrite(PIN_VERSION, VERSION);
 
     if (DEBUG) {
@@ -247,25 +247,6 @@ void run_process(void) {
     digitalWrite(LED, working);
 }
 
-void run_tester(void) {
-    get_sensor();
-
-    if (working) {
-        /**
-         * @brief run motor with "run_time", "end_time" parameters
-         */
-
-        BasePump.run(RUN_TIME, 1000);
-    } else {
-        /**
-         * @brief stop motor with "after" parameter
-         * 
-         */
-
-        BasePump.stop(3000);
-    }
-}
-
 
 void setup(void) {
     pinMode(LED, OUTPUT);
@@ -300,8 +281,8 @@ void setup(void) {
         }
     }
 
-    last_sync = millis();
     get_sensor();
+    last_sync = millis();
     debug("Setup completed");
 }
 

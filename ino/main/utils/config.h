@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define VERSION "2.2.2"
+#define VERSION "2.2.3"
 
 // Debug
 #define DEBUG 1
