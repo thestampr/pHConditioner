@@ -51,6 +51,8 @@ void dynamic_delay(void) {
 }
 
 void get_sensor(void) {
+    // Get value of sensors
+
     Ph.get();
     Temp.get();
 }
@@ -115,6 +117,8 @@ BLYNK_WRITE(PIN_GOOD_RANGE) {
 
 
 void wm_setup(void) {
+    // Setup WifiManager
+
     WifiMgr.setDarkMode(WM_DARKMODE);
     WifiMgr.setDebugOutput(WM_DEBUG);
     WifiMgr.setSaveConfigCallback(wm_savecallback);
@@ -122,6 +126,8 @@ void wm_setup(void) {
 }
 
 void wm_reset(void) {
+    // Reset wifi
+
     stop();
 
     while (reset_checker && Blynk.connected()) {
@@ -137,22 +143,30 @@ void wm_reset(void) {
 }
 
 void wm_savecallback(void) {
+    // WifiManager saved callback
+
     restart();
 }
 
 
 void checks(void) {
+    // Check if any button-hold is held for DANGER_HOLD_SEC seconds is being executed
+
     reset_check();
     restart_check();
 }
 
 void reset_check(void) {
+    // Check if wifi-reset button is held for DANGER_HOLD_SEC seconds
+
     if (reset_checker && (millis() - last_reset_hold >= DANGER_HOLD_SEC * 1000)) {
         wm_reset();
     }
 }
 
 void restart_check(void) {
+    // Check if restart button is held for DANGER_HOLD_SEC seconds
+
     if (restart_checker && (millis() - last_restart_hold >= DANGER_HOLD_SEC * 1000)) {
         restart();
     }
@@ -160,12 +174,12 @@ void restart_check(void) {
 
 
 void sync(void) {
+    // Sync data to blynk
+
     if (do_sync) {
         unsigned long now = millis();
         if (now - last_sync >= sync_clock * 1000) {
-            // Send data every sync_clock
-
-            // debug("pH:" + String(Ph.value) + ", Temp:" + String(Temp.value));
+            // Sync every sync_clock minuite
 
             last_sync = now;
 
@@ -182,6 +196,8 @@ void sync(void) {
 }
 
 void run_process(void) {
+    // Main working process
+
     get_sensor();
 
     if (working) {
@@ -229,11 +245,15 @@ void run_process(void) {
 }
 
 void stop_process(void) {
+    // Stop working process
+
     reset();
 }
 
 
 void restart(void) {
+    // Restart hardware
+
     stop();
 
     while (restart_checker && Blynk.connected()) {
@@ -248,6 +268,8 @@ void restart(void) {
 }
 
 void reset(void) {
+    // Reset process
+
     working = 0;
     percent = 0;
 
@@ -255,6 +277,8 @@ void reset(void) {
 }
 
 void stop(void) {
+    // Stop hardware, must call before hardware is being shutting down
+
     do_sync = false;
     
     BasePump.stop();
@@ -265,6 +289,8 @@ void stop(void) {
 
 
 void setup(void) {
+    // Hardware setup
+
     pinMode(LED, OUTPUT);
     pinMode(LED_BUILTIN, OUTPUT);
 
@@ -303,17 +329,19 @@ void setup(void) {
 }
 
 void loop(void) {
+    // Main loop
+
     dynamic_delay();
 
-    run_process();
     Blynk.run();
+    run_process();
 
     if (Blynk.connected()) {
         sync();
     } else {
         digitalWrite(BUILTIN_LED, LOW);
     }
-    if (WM_NONBLOCKING) WifiMgr.process();
+    if (WM_NONBLOCKING && !DEBUG) WifiMgr.process();
 
     checks();
 }

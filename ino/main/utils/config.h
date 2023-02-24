@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define VERSION "2.2.5"
+#define VERSION "2.2.6"
 
 // Debug
 #define DEBUG 1
@@ -42,4 +42,4 @@
 
 #define DANGER_HOLD_SEC 3 // seconds
 
-#define DELAY_TIME 350 // milliseconds
+#define DELAY_TIME 250 // milliseconds
