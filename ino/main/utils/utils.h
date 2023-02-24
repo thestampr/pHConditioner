@@ -14,6 +14,7 @@ template <typename Printable>
 void debug(Printable message) {
     if (DEBUG) Serial.println("DEBUG: " + String(message));
 }
+
 /**
  * Prints a logger message to the serial port and blynk if connected.
  *

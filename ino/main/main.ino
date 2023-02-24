@@ -213,8 +213,6 @@ void run_process(void) {
          *          base()
          */
 
-        // BUG
-
         if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
             stop_process();
             logger("done.");
