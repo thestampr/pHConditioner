@@ -11,6 +11,10 @@ Board : `Nodemcu v3`
 
 #pragma once
 
+// default wifi ssid
+#define SSID "your ssid"
+#define PASS "your password"
+
 // Blynk
 #define BLYNK_TEMPLATE_ID "your_BLYNK_TEMPLATE_ID"
 #define BLYNK_DEVICE_NAME "your_BLYNK_DEVICE_NAME"
