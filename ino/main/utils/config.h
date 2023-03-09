@@ -2,13 +2,14 @@
 
 #pragma once
 
-#define VERSION "2.2.6"
+#define VERSION "2.2.8"
 
 // Debug
 #define DEBUG 1
 #define WM_DEBUG 0
-#define RAW_SENSOR 0
+#define RAW_SENSOR 1
 #define TEST 0
+#define PH_CALIBRATING 0
 
 // Pins
 #define LED D0
@@ -18,6 +19,7 @@
 #define BASE_PIN D1
 #define ACID_PIN D2
 #define FLOW_PIN D3
+#define MGND_PIN D6 // To prevent from blinking on startup, in needed ?
 
 // Virtual pins
 #define PIN_VERSION V0
@@ -29,10 +31,7 @@
 #define PIN_SYNC_CLOCK V6
 #define PIN_RESET V7
 #define PIN_RESTART V8
-#define PIN_GOOD_RANGE V9 // V11 for default
-// #define PIN_STATUS V9
-// #define PIN_TERMINAL V10
-// Limit to 10 pins for free plan
+#define PIN_GOOD_RANGE V9
 
 #define BLYNK_CLOUD "blynk.cloud"
 
@@ -43,3 +42,5 @@
 #define DANGER_HOLD_SEC 3 // seconds
 
 #define DELAY_TIME 250 // milliseconds
+
+#define NEW_WORKER 1 // 1: use new worker code, eather not

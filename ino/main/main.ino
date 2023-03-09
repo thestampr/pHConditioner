@@ -31,6 +31,15 @@ unsigned long last_sync;
 unsigned long last_reset_hold;
 unsigned long last_restart_hold;
 
+// new worker
+int reading_state = 1;
+int reading_runtime = 5000;
+int reading_stoptime = 5000;
+int change_worker_state;
+unsigned long worker_state_runtime;
+unsigned long worker_state_endtime;
+
+
 WiFiManager WifiMgr;
 TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
@@ -242,6 +251,95 @@ void run_process(void) {
     digitalWrite(LED, working);
 }
 
+void run_process_v2(void) {
+    // Main working process (rewrite)
+
+    /**
+     * @brief rewrite V2, to prevent from dc moter noise
+     * then; dc mortor can't be working with reading sensor at the same time
+     * 
+     * if not working: read sensor by normal, like v1
+     * else: switch between reading and motor worker
+     * 
+     */
+
+    worker_state_runtime = millis();
+
+    if (working) {
+        if (worker_state_runtime > worker_state_endtime) {
+            // state manager
+            if (reading_state) {
+                reading_state = 0;
+                worker_state_endtime = worker_state_runtime + reading_stoptime;
+            }
+            else {
+                reading_state = 1;
+                worker_state_endtime = worker_state_runtime + reading_runtime;
+            }
+        }
+
+        if (reading_state) {
+            BasePump.stop();
+            AcidPump.stop();
+            FlowPump.stop();
+            
+            if (worker_state_endtime != (worker_state_runtime + reading_runtime)) {
+                // ignore first value after state was changed
+
+                get_sensor();
+                debug("Reading...");
+            }
+        }
+
+        else {
+            /**
+             * @brief first, compare ph value
+             * 
+             * if Ph value in +- good range
+             *      done()
+             * else 
+             *      if Ph.value < Ph.target
+             *          acid()
+             *      else // value > target
+             *          base()
+             */
+
+            if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
+                stop_process();
+                logger("done.");
+            } else {
+                percent = Ph.percent();
+
+                if (Ph.value < Ph.target) {
+                    AcidPump.run();
+                    BasePump.stop();
+                } else {
+                    BasePump.run();
+                    AcidPump.stop();
+                }
+                FlowPump.run();
+                debug("Working...");
+            }
+        }
+    } else {
+        /**
+         * @brief then, stop all motors
+         * read senssor after all moter has stopped
+         * 
+         */
+        
+        if ((!BasePump.is_running) && (!AcidPump.is_running) && (!FlowPump.is_running)) {
+            get_sensor();
+        }
+
+        BasePump.stop();
+        AcidPump.stop();
+        FlowPump.stop(5000);
+    }
+
+    digitalWrite(LED, working);
+}
+
 void stop_process(void) {
     // Stop working process
 
@@ -289,6 +387,9 @@ void stop(void) {
 void setup(void) {
     // Hardware setup
 
+    pinMode(MGND_PIN, OUTPUT);
+    digitalWrite(MGND_PIN, HIGH); // Open pump circuit to prevent blinking on startup.
+
     pinMode(LED, OUTPUT);
     pinMode(LED_BUILTIN, OUTPUT);
 
@@ -323,6 +424,8 @@ void setup(void) {
 
     get_sensor();
     last_sync = millis();
+    digitalWrite(MGND_PIN, LOW); // Then close circuit on ready.
+    
     debug("Setup completed");
 }
 
@@ -332,7 +435,12 @@ void loop(void) {
     dynamic_delay();
 
     Blynk.run();
-    run_process();
+    if (NEW_WORKER) {
+        run_process_v2();
+    }
+    else {
+        run_process();
+    }
 
     if (Blynk.connected()) {
         sync();

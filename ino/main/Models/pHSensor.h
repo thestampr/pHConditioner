@@ -5,7 +5,13 @@
 #include "..\utils\utils.h"
 
 const float VOLTAGE = 3.0;
-const float CALIBRATION = 8.0;
+const float CALIBRATION = 6.0;
+const float CALIBRATION_OFFSET = 20.0;
+const int SAMPLINGS = 10; // don't touch it
+
+const float BITS = 1024.0;
+
+const float PH_MEAN = 7.6;
 
 
 class pHSensor {
@@ -20,16 +26,25 @@ class pHSensor {
         }
         
         float get(void) {
-            unsigned long int avgval;
-            int buffer_arr[10], temp;
+            unsigned long int avgval = 0;
+            int buffer_arr[SAMPLINGS], temp;
 
-            for (int i = 0; i < 10; i++) {
+            // Reading analog
+            for (int i = 0; i < SAMPLINGS; i++) {
                 buffer_arr[i] = analogRead(pin);
-                if (RAW_SENSOR) Serial.println(buffer_arr[i]);
+                // debug(buffer_arr[i]);
                 delay(10);
             }
-            for (int i = 0; i < 9; i++) {
-                for (int j = i + 1; j < 10; j++) {
+
+            if (PH_CALIBRATING) {
+                int sample = analogRead(pin);
+                float voltage = sample * (VOLTAGE / (BITS-1));
+                debug("Voltage : " + String(voltage));
+            }
+
+            // yo! wtf
+            for (int i = 0; i < SAMPLINGS-1; i++) {
+                for (int j = i + 1; j < SAMPLINGS; j++) {
                     if (buffer_arr[i] > buffer_arr[j]) {
                         temp = buffer_arr[i];
                         buffer_arr[i] = buffer_arr[j];
@@ -37,30 +52,16 @@ class pHSensor {
                     }
                 }
             }
-            avgval = 0;
-            for (int i = 2; i < 8; i++)
+
+            // idk
+            for (int i = 2; i < SAMPLINGS-2; i++)
                 avgval += buffer_arr[i];
 
-            float milli_volt = (float)avgval * VOLTAGE / 1024 / CALIBRATION;
-            value = (milli_volt * 3.5);
-            return value;
-        }
-        
-        float get_backup(void) {
-            unsigned long int avgval;
-            int buffer_arr[10], temp;
-            float read_buffer;
-
-            for (int i = 0; i < 10; i++) {
-                buffer_arr[i] = analogRead(pin);
-                read_buffer += buffer_arr[i];
-                if (RAW_SENSOR) Serial.println(buffer_arr[i]);
-                delay(10);
-            }
-            int buffer_lenght = sizeof(buffer_arr) / sizeof(float);
-            avgval = read_buffer / buffer_lenght;
-            // float milli_volt = (float)avgval * VOLTAGE / 1024 / CALIBRATION;
-            value = float_map(avgval, 0.0, 1024.0, 1.0, 14.0);
+            float milli_volt = (float)avgval * VOLTAGE / BITS / CALIBRATION;
+            // value = (milli_volt * 3.5);
+            // value = (-5.70 * milli_volt + CALIBRATION_OFFSET) + (((-5.70 * milli_volt + CALIBRATION_OFFSET) - PH_MEAN) * 1.0); 
+            value = (-5.70 * milli_volt + CALIBRATION_OFFSET); 
+            if (RAW_SENSOR) debug("Ph value : " + String(value));
             return value;
         }
 
