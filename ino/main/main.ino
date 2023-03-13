@@ -31,9 +31,9 @@ unsigned long last_sync;
 unsigned long last_reset_hold;
 unsigned long last_restart_hold;
 
-// new worker
-int reading_state = 1;
-int reading_runtime = 5000;
+// variables for new worker
+int reading_state = 0;
+int reading_runtime = 7000;
 int reading_stoptime = 5000;
 int change_worker_state;
 unsigned long worker_state_runtime;
@@ -44,7 +44,8 @@ WiFiManager WifiMgr;
 TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
 
-MotorPump BasePump(BASE_PIN);
+// create motor object inside a code
+MotorPump BasePump(BASE_PIN); 
 MotorPump AcidPump(ACID_PIN);
 MotorPump FlowPump(FLOW_PIN, false);
 
@@ -62,12 +63,14 @@ void dynamic_delay(void) {
 void get_sensor(void) {
     // Get value of sensors
 
-    Ph.get();
+    Ph.get(working);
     Temp.get();
 }
 
 
 BLYNK_CONNECTED() {
+    // connected event
+
     // Sync priority
     Blynk.syncVirtual(PIN_PH_TARGET);
     Blynk.syncAll();
@@ -84,11 +87,15 @@ BLYNK_CONNECTED() {
 }
 
 BLYNK_DISCONNECTED() {
+    // disconncted event
+
     debug("Disconnected");
     do_sync = false;
 }
 
 BLYNK_WRITE(PIN_WORKER) {
+    // worker pin event
+
     working = param.asInt();
     if (working) {
         if (do_sync) {
@@ -102,25 +109,37 @@ BLYNK_WRITE(PIN_WORKER) {
     }
 }
 
+BLYNK_WRITE(PIN_PH_TARGET) {
+    // ph target event
+
+    Ph.target = param.asFloat();
+}
+
+
+// settings
 BLYNK_WRITE(PIN_RESET) {
+    // reset setting event
+
     reset_checker = param.asInt();
     if (reset_checker) last_reset_hold = millis();
 }
 
 BLYNK_WRITE(PIN_RESTART) {
+    // restart setting event
+
     restart_checker = param.asInt();
     if (restart_checker) last_restart_hold = millis();
 }
 
-BLYNK_WRITE(PIN_PH_TARGET) {
-    Ph.target = param.asFloat();
-}
-
 BLYNK_WRITE(PIN_SYNC_CLOCK) {
+    // sync clock setting event
+
     sync_clock = param.asInt();
 }
 
 BLYNK_WRITE(PIN_GOOD_RANGE) {
+    // good range setting event
+
     good_range = param.asFloat();
 }
 
@@ -189,6 +208,7 @@ void sync(void) {
         unsigned long now = millis();
         if (now - last_sync >= sync_clock * 1000) {
             // Sync every sync_clock minuite
+            // ส่งค่าทุก sync_clock นาที
 
             last_sync = now;
 
@@ -252,7 +272,7 @@ void run_process(void) {
 }
 
 void run_process_v2(void) {
-    // Main working process (rewrite)
+    // Main working process (rewrite V2)
 
     /**
      * @brief rewrite V2, to prevent from dc moter noise
@@ -271,8 +291,11 @@ void run_process_v2(void) {
             if (reading_state) {
                 reading_state = 0;
                 worker_state_endtime = worker_state_runtime + reading_stoptime;
-            }
-            else {
+
+                // getting the last value
+                get_sensor();
+                debug("Reading...");
+            } else {
                 reading_state = 1;
                 worker_state_endtime = worker_state_runtime + reading_runtime;
             }
@@ -283,12 +306,12 @@ void run_process_v2(void) {
             AcidPump.stop();
             FlowPump.stop();
             
-            if (worker_state_endtime != (worker_state_runtime + reading_runtime)) {
-                // ignore first value after state was changed
+            // if (worker_state_endtime != (worker_state_runtime + reading_runtime)) {
+            //     // ignore first value after state was changed
 
-                get_sensor();
-                debug("Reading...");
-            }
+            //     get_sensor();
+            //     debug("Reading...");
+            // }
         }
 
         else {
@@ -327,14 +350,29 @@ void run_process_v2(void) {
          * read senssor after all moter has stopped
          * 
          */
+
+        if (reading_state) {
+            // set new worker_state_endtime if all motors already stopped
+
+            worker_state_endtime = worker_state_runtime + reading_stoptime;
+            reading_state = 0;
+        }
         
         if ((!BasePump.is_running) && (!AcidPump.is_running) && (!FlowPump.is_running)) {
-            get_sensor();
+            if (worker_state_runtime > worker_state_endtime) {
+                // reading after worker_state_endtime
+
+                get_sensor();
+            }
+        } else {
+            // set new worker_state_endtime after all motor has stopped
+
+            worker_state_endtime = worker_state_runtime + reading_stoptime;
         }
 
         BasePump.stop();
         AcidPump.stop();
-        FlowPump.stop(5000);
+        FlowPump.stop();
     }
 
     digitalWrite(LED, working);

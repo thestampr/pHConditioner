@@ -2,14 +2,19 @@
 
 #pragma once
 
-#define VERSION "2.2.8"
+#define VERSION "2.2.9"
 
 // Debug
-#define DEBUG 1
+#define DEBUG 0
 #define WM_DEBUG 0
-#define RAW_SENSOR 1
+#define RAW_ANALOG 0
+#define RAW_SENSOR 0
 #define TEST 0
 #define PH_CALIBRATING 0
+
+// worker
+#define NEW_WORKER 0 // 1: use new worker code, eather not
+#define USE_DENOISE 0
 
 // Pins
 #define LED D0
@@ -42,5 +47,3 @@
 #define DANGER_HOLD_SEC 3 // seconds
 
 #define DELAY_TIME 250 // milliseconds
-
-#define NEW_WORKER 1 // 1: use new worker code, eather not
