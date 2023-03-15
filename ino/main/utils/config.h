@@ -7,13 +7,13 @@
 // Debug
 #define DEBUG 0
 #define WM_DEBUG 0
-#define RAW_ANALOG 0
-#define RAW_SENSOR 0
+#define RAW_ANALOG 1
+#define RAW_SENSOR 1
 #define TEST 0
 #define PH_CALIBRATING 0
 
 // worker
-#define NEW_WORKER 0 // 1: use new worker code, eather not
+#define NEW_WORKER 1
 #define USE_DENOISE 0
 
 // Pins

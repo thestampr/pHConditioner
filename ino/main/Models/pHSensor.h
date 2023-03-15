@@ -6,20 +6,31 @@
 
 const float VOLTAGE = 3.0;
 const float CALIBRATION = 6.0;
-const float CALIBRATION_OFFSET = 20.0;
-const int SAMPLINGS = 10; // don't touch it
+const float CALIBRATION_OFFSET = 21.0;
+const int SAMPLINGS = 10;
 
 const float BITS = 1024.0;
 
 const float PH_MEAN = 7.6;
 
+const float FILLTER = 0.95;
+
 
 class pHSensor {
     private:
+        int _counting;
         int _denoise_state;
 
         float _noise;
         float _denoise_ref;
+
+        float _first_value_of_sampling;
+        float _average_samplings;
+
+        float smooth(float data) {
+            float _smoothed = (data * (1 - FILLTER)) + (value  *  FILLTER);
+            return _smoothed;
+        }
 
     public:
         int pin;
@@ -33,12 +44,12 @@ class pHSensor {
         
         float get(int denoise = 0) {
             unsigned long int avgval = 0;
-            int buffer_arr[SAMPLINGS], temp;
+            int buffer_arr[10], temp;
 
             float last_value = value;
 
             // Reading analog
-            for (int i = 0; i < SAMPLINGS; i++) {
+            for (int i = 0; i < 10; i++) {
                 buffer_arr[i] = analogRead(pin);
 
                 if (RAW_ANALOG) {
@@ -55,8 +66,8 @@ class pHSensor {
             }
 
             // yo! wtf
-            for (int i = 0; i < SAMPLINGS-1; i++) {
-                for (int j = i + 1; j < SAMPLINGS; j++) {
+            for (int i = 0; i < 10-1; i++) {
+                for (int j = i + 1; j < 10; j++) {
                     if (buffer_arr[i] > buffer_arr[j]) {
                         temp = buffer_arr[i];
                         buffer_arr[i] = buffer_arr[j];
@@ -66,8 +77,9 @@ class pHSensor {
             }
 
             // idk
-            for (int i = 2; i < SAMPLINGS-2; i++)
+            for (int i = 2; i < 10-2; i++) {
                 avgval += buffer_arr[i];
+            }
 
             float milli_volt = (float)avgval * VOLTAGE / BITS / CALIBRATION;
             // value = (milli_volt * 3.5);
@@ -89,6 +101,33 @@ class pHSensor {
             } else {
                 _denoise_state = 0;
             }
+
+            // _average_samplings += value;
+
+            // if (_counting == SAMPLINGS) {
+            //     _average_samplings -= _first_value_of_sampling;
+            //     _first_value_of_sampling = value;
+            //     value = _average_samplings / SAMPLINGS;
+            // } else {
+            //     _counting += 1;
+            //     _first_value_of_sampling = value;
+            // }
+
+            // value = (value + last_value) / 2;
+
+            return value;
+        }
+
+        float get_test(int denoise = 0) {
+            int buffer = analogRead(pin);
+
+            debug("Raw measuaring raw value = " + String(buffer));
+
+            double milli_volt = VOLTAGE / BITS * buffer;
+            debug("Voltage value = " + String(milli_volt));
+
+            value = 7 + ((0.25 - milli_volt) / 0.18);
+            debug("pH value = " + String(value));
 
             return value;
         }

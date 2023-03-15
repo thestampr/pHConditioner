@@ -31,10 +31,10 @@ unsigned long last_sync;
 unsigned long last_reset_hold;
 unsigned long last_restart_hold;
 
-// variables for new worker
+// if NEW_WORKER is set
 int reading_state = 0;
-int reading_runtime = 7000;
-int reading_stoptime = 5000;
+int reading_runtime = 10000;
+int reading_stoptime = 2000;
 int change_worker_state;
 unsigned long worker_state_runtime;
 unsigned long worker_state_endtime;
@@ -201,14 +201,13 @@ void restart_check(void) {
 }
 
 
-void sync(void) {
+int sync(void) {
     // Sync data to blynk
 
     if (do_sync) {
         unsigned long now = millis();
         if (now - last_sync >= sync_clock * 1000) {
             // Sync every sync_clock minuite
-            // ส่งค่าทุก sync_clock นาที
 
             last_sync = now;
 
@@ -218,10 +217,13 @@ void sync(void) {
             digitalWrite(BUILTIN_LED, HIGH);
 
             Blynk.virtualWrite(PIN_PROCESS, percent);
+
+            return 1;
         } else {
             digitalWrite(BUILTIN_LED, HIGH);
         }
-    }
+    } 
+    return 0;
 }
 
 void run_process(void) {
@@ -284,6 +286,7 @@ void run_process_v2(void) {
      */
 
     worker_state_runtime = millis();
+    Temp.get();
 
     if (working) {
         if (worker_state_runtime > worker_state_endtime) {
@@ -293,7 +296,7 @@ void run_process_v2(void) {
                 worker_state_endtime = worker_state_runtime + reading_stoptime;
 
                 // getting the last value
-                get_sensor();
+                Ph.get(USE_DENOISE);
                 debug("Reading...");
             } else {
                 reading_state = 1;
@@ -362,7 +365,7 @@ void run_process_v2(void) {
             if (worker_state_runtime > worker_state_endtime) {
                 // reading after worker_state_endtime
 
-                get_sensor();
+                Ph.get(USE_DENOISE);
             }
         } else {
             // set new worker_state_endtime after all motor has stopped
@@ -473,11 +476,14 @@ void loop(void) {
     dynamic_delay();
 
     Blynk.run();
-    if (NEW_WORKER) {
+    if (NEW_WORKER == 0) {
+        run_process();
+    }
+    else if(NEW_WORKER == 1) {
         run_process_v2();
     }
-    else {
-        run_process();
+    else if(NEW_WORKER == 2) {
+        run_process_v3();
     }
 
     if (Blynk.connected()) {
