@@ -10,7 +10,9 @@
 #define RAW_ANALOG 1
 #define RAW_SENSOR 1
 #define TEST 0
+
 #define PH_CALIBRATING 0
+#define CLEANUP 0
 
 // worker
 #define NEW_WORKER 1

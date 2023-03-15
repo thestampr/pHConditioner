@@ -30,7 +30,7 @@ class MotorPump {
 
         void run(int run_time = RUN_TIME, int stop_time = STOP_TIME) {
             state_runtime = millis();
-            if (do_delay) {
+            if (do_delay && run_time) {
                 if (state) {
                     if (change_state) {
                         state_endtime = state_runtime + run_time;

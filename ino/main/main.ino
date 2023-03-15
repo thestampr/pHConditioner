@@ -381,6 +381,18 @@ void run_process_v2(void) {
     digitalWrite(LED, working);
 }
 
+void cleanup(void) {
+    // cleanup tank
+
+    if (working) {
+        BasePump.run(0);
+        AcidPump.run(0);
+    } else {
+        BasePump.stop();
+        AcidPump.stop();
+    }
+}
+
 void stop_process(void) {
     // Stop working process
 
@@ -476,14 +488,16 @@ void loop(void) {
     dynamic_delay();
 
     Blynk.run();
-    if (NEW_WORKER == 0) {
-        run_process();
-    }
-    else if(NEW_WORKER == 1) {
-        run_process_v2();
-    }
-    else if(NEW_WORKER == 2) {
-        run_process_v3();
+
+    if (CLEANUP) {
+        cleanup();
+    } else {
+        if (NEW_WORKER == 0) {
+            run_process();
+        }
+        else if(NEW_WORKER == 1) {
+            run_process_v2();
+        }
     }
 
     if (Blynk.connected()) {
