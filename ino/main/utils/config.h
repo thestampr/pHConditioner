@@ -23,8 +23,8 @@
 #define ONE_WIRE_BUS D5
 #define ANALOG_PH A0
 
-#define BASE_PIN D1
-#define ACID_PIN D2
+#define ACID_PIN D1
+#define BASE_PIN D2
 #define FLOW_PIN D3
 #define MGND_PIN D6 // To prevent from blinking on startup, in needed ?
 

@@ -45,8 +45,8 @@ TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
 
 // create motor object inside a code
-MotorPump BasePump(BASE_PIN); 
-MotorPump AcidPump(ACID_PIN);
+MotorPump AcidPump(BASE_PIN); 
+MotorPump BasePump(ACID_PIN);
 MotorPump FlowPump(FLOW_PIN, false);
 
 
@@ -251,11 +251,11 @@ void run_process(void) {
             percent = Ph.percent();
 
             if (Ph.value < Ph.target) {
-                AcidPump.run();
-                BasePump.stop();
-            } else {
                 BasePump.run();
                 AcidPump.stop();
+            } else {
+                AcidPump.run();
+                BasePump.stop();
             }
             FlowPump.run();
         }
@@ -265,8 +265,8 @@ void run_process(void) {
          * 
          */
 
-        BasePump.stop();
         AcidPump.stop();
+        BasePump.stop();
         FlowPump.stop(5000);
     }
 
@@ -305,8 +305,8 @@ void run_process_v2(void) {
         }
 
         if (reading_state) {
-            BasePump.stop();
             AcidPump.stop();
+            BasePump.stop();
             FlowPump.stop();
             
             // if (worker_state_endtime != (worker_state_runtime + reading_runtime)) {
@@ -337,11 +337,11 @@ void run_process_v2(void) {
                 percent = Ph.percent();
 
                 if (Ph.value < Ph.target) {
-                    AcidPump.run();
-                    BasePump.stop();
-                } else {
                     BasePump.run();
                     AcidPump.stop();
+                } else {
+                    AcidPump.run();
+                    BasePump.stop();
                 }
                 FlowPump.run();
                 debug("Working...");
@@ -361,7 +361,7 @@ void run_process_v2(void) {
             reading_state = 0;
         }
         
-        if ((!BasePump.is_running) && (!AcidPump.is_running) && (!FlowPump.is_running)) {
+        if ((!AcidPump.is_running) && (!BasePump.is_running) && (!FlowPump.is_running)) {
             if (worker_state_runtime > worker_state_endtime) {
                 // reading after worker_state_endtime
 
@@ -373,8 +373,8 @@ void run_process_v2(void) {
             worker_state_endtime = worker_state_runtime + reading_stoptime;
         }
 
-        BasePump.stop();
         AcidPump.stop();
+        BasePump.stop();
         FlowPump.stop();
     }
 
@@ -385,11 +385,11 @@ void cleanup(void) {
     // cleanup tank
 
     if (working) {
-        BasePump.run(0);
         AcidPump.run(0);
+        BasePump.run(0);
     } else {
-        BasePump.stop();
         AcidPump.stop();
+        BasePump.stop();
     }
 }
 
@@ -430,8 +430,8 @@ void stop(void) {
 
     do_sync = false;
     
-    BasePump.stop();
     AcidPump.stop();
+    BasePump.stop();
     FlowPump.stop();
     digitalWrite(LED, LOW);
 }
