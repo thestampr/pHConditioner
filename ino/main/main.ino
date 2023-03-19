@@ -45,8 +45,8 @@ TempSensor Temp(ONE_WIRE_BUS);
 pHSensor Ph(ANALOG_PH);
 
 // create motor object inside a code
-MotorPump AcidPump(BASE_PIN); 
-MotorPump BasePump(ACID_PIN);
+MotorPump AcidPump(ACID_PIN); 
+MotorPump BasePump(BASE_PIN);
 MotorPump FlowPump(FLOW_PIN, false);
 
 
@@ -63,7 +63,7 @@ void dynamic_delay(void) {
 void get_sensor(void) {
     // Get value of sensors
 
-    Ph.get(working);
+    Ph.get();
     Temp.get();
 }
 
@@ -296,7 +296,7 @@ void run_process_v2(void) {
                 worker_state_endtime = worker_state_runtime + reading_stoptime;
 
                 // getting the last value
-                Ph.get(USE_DENOISE);
+                Ph.get();
                 debug("Reading...");
             } else {
                 reading_state = 1;
@@ -330,14 +330,15 @@ void run_process_v2(void) {
              *          base()
              */
 
-            if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
+            // if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
+            if (abs(Ph.target - Ph.value) <= good_range) {
                 stop_process();
                 logger("done.");
             } else {
                 percent = Ph.percent();
 
                 if (Ph.value < Ph.target) {
-                    BasePump.run();
+                    BasePump.run(reading_stoptime);
                     AcidPump.stop();
                 } else {
                     AcidPump.run();
@@ -365,7 +366,7 @@ void run_process_v2(void) {
             if (worker_state_runtime > worker_state_endtime) {
                 // reading after worker_state_endtime
 
-                Ph.get(USE_DENOISE);
+                Ph.get();
             }
         } else {
             // set new worker_state_endtime after all motor has stopped

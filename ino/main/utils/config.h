@@ -2,21 +2,19 @@
 
 #pragma once
 
-#define VERSION "2.2.9"
+#define VERSION "2.3.0"
 
 // Debug
-#define DEBUG 0
+#define DEBUG 1
 #define WM_DEBUG 0
 #define RAW_ANALOG 1
-#define RAW_SENSOR 1
+#define RAW_SENSOR 0
 #define TEST 0
 
-#define PH_CALIBRATING 0
 #define CLEANUP 0
 
 // worker
-#define NEW_WORKER 1
-#define USE_DENOISE 0
+#define NEW_WORKER 0
 
 // Pins
 #define LED D0

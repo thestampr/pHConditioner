@@ -7,6 +7,9 @@
 
 
 class TempSensor {
+    private:
+        const float CALIBRATION_OFFSET = -1.4;
+
     public:
         int pin;
         float value;
@@ -20,7 +23,7 @@ class TempSensor {
 
         float get(void) {
             Sensor.requestTemperatures();
-            value = Sensor.getTempCByIndex(0);
+            value = Sensor.getTempCByIndex(0) + CALIBRATION_OFFSET;
             return value;
         }
 };
