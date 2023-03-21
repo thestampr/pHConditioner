@@ -19,7 +19,12 @@ int working;
 int reset_checker;
 int restart_checker;
 int sync_clock = 1;
-float good_range = 0.2;
+
+// ph range checker
+int inrange_times;
+float run_pump = PUMP_RUN_TIME;
+float wait_pump = PUMP_WAIT_TIME;
+float good_range = 0.1;
 
 float percent;
 
@@ -67,6 +72,16 @@ void get_sensor(void) {
     Temp.get();
 }
 
+bool is_inrange(void) {
+    // check if ph value is in good range
+
+    // if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
+    if (abs(Ph.target - Ph.value) <= good_range) {
+        return true;
+    }
+    return false;
+}
+
 
 BLYNK_CONNECTED() {
     // connected event
@@ -97,7 +112,7 @@ BLYNK_WRITE(PIN_WORKER) {
     // worker pin event
 
     working = param.asInt();
-    if (working) {
+    if (working && !is_inrange()) {
         if (do_sync) {
             Ph.start = Ph.value;
         } else {
@@ -244,17 +259,30 @@ void run_process(void) {
          *          base()
          */
 
-        if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
+        if (is_inrange()) {
+            inrange_times++;
+        } 
+
+        if (inrange_times == CHECK_TIMES) {
             stop_process();
             logger("done.");
         } else {
-            percent = Ph.percent();
+            if (inrange_times) {
+                run_pump = 500;
+                wait_pump = 10000;
+            }
+
+            float _percent = Ph.percent();
+
+            if (_percent > percent) {
+                percent = _percent;
+            }
 
             if (Ph.value < Ph.target) {
-                BasePump.run();
+                BasePump.run(PUMP_RUN_TIME, wait_pump);
                 AcidPump.stop();
             } else {
-                AcidPump.run();
+                AcidPump.run(PUMP_RUN_TIME, wait_pump);
                 BasePump.stop();
             }
             FlowPump.run();
@@ -267,7 +295,7 @@ void run_process(void) {
 
         AcidPump.stop();
         BasePump.stop();
-        FlowPump.stop(5000);
+        FlowPump.stop(10000);
     }
 
     digitalWrite(LED, working);
@@ -330,7 +358,6 @@ void run_process_v2(void) {
              *          base()
              */
 
-            // if (((Ph.target - good_range) < Ph.value) && (Ph.value < (Ph.target + good_range))) {
             if (abs(Ph.target - Ph.value) <= good_range) {
                 stop_process();
                 logger("done.");
@@ -422,6 +449,10 @@ void reset(void) {
 
     working = 0;
     percent = 0;
+
+    inrange_times = 0;
+    run_pump = PUMP_RUN_TIME;
+    wait_pump = PUMP_WAIT_TIME;
 
     Blynk.virtualWrite(PIN_WORKER, 0);
 }

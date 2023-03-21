@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define VERSION "2.3.0"
+#define VERSION "2.3.1"
 
 // Debug
 #define DEBUG 1
@@ -47,3 +47,9 @@
 #define DANGER_HOLD_SEC 3 // seconds
 
 #define DELAY_TIME 250 // milliseconds
+
+// ph range checker
+#define CHECK_TIMES 3
+
+#define PUMP_RUN_TIME 1000 // milliseconds
+#define PUMP_WAIT_TIME 5000 // milliseconds

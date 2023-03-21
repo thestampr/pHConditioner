@@ -2,9 +2,6 @@
 
 #pragma once
 
-#define RUN_TIME 1000 // millisecs
-#define STOP_TIME 5000 // millisecs
-
 
 class MotorPump {
     private:
@@ -28,7 +25,7 @@ class MotorPump {
             pinMode(pin, OUTPUT);
         }
 
-        void run(int run_time = RUN_TIME, int stop_time = STOP_TIME) {
+        void run(int run_time = PUMP_RUN_TIME, int wait_time = PUMP_WAIT_TIME) {
             state_runtime = millis();
             if (do_delay && run_time) {
                 if (state) {
@@ -44,7 +41,7 @@ class MotorPump {
                     }
                 } else {
                     if (change_state) {
-                        state_endtime = state_runtime + stop_time;
+                        state_endtime = state_runtime + wait_time;
                         change_state = 0;
                     }
                     digitalWrite(pin, LOW);

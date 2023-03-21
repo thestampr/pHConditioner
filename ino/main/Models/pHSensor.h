@@ -67,7 +67,7 @@ class pHSensor {
             int reading, temp;
 
             // Reading analog
-            reading = analogRead(pin);
+            reading = analogRead(pin) + CALIBRATION_OFFSET;
 
             if (RAW_ANALOG) {
                 debug(reading);
