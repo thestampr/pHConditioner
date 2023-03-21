@@ -279,10 +279,10 @@ void run_process(void) {
             }
 
             if (Ph.value < Ph.target) {
-                BasePump.run(PUMP_RUN_TIME, wait_pump);
+                BasePump.run(run_pump, wait_pump);
                 AcidPump.stop();
             } else {
-                AcidPump.run(PUMP_RUN_TIME, wait_pump);
+                AcidPump.run(run_pump, wait_pump);
                 BasePump.stop();
             }
             FlowPump.run();
