@@ -2,10 +2,10 @@
 
 #pragma once
 
-#define VERSION "2.3.1"
+#define VERSION "2.3.2"
 
 // Debug
-#define DEBUG 1
+#define DEBUG 0
 #define WM_DEBUG 0
 #define RAW_ANALOG 1
 #define RAW_SENSOR 0
@@ -51,5 +51,5 @@
 // ph range checker
 #define CHECK_TIMES 3
 
-#define PUMP_RUN_TIME 1000 // milliseconds
-#define PUMP_WAIT_TIME 5000 // milliseconds
+#define PUMP_RUN_TIME 750 // milliseconds
+#define PUMP_WAIT_TIME 10000 // milliseconds

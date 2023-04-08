@@ -268,8 +268,8 @@ void run_process(void) {
             logger("done.");
         } else {
             if (inrange_times) {
-                run_pump = 500;
-                wait_pump = 10000;
+                run_pump = 300;
+                wait_pump = 20000;
             }
 
             float _percent = Ph.percent();
@@ -295,7 +295,7 @@ void run_process(void) {
 
         AcidPump.stop();
         BasePump.stop();
-        FlowPump.stop(10000);
+        FlowPump.stop(30000);
     }
 
     digitalWrite(LED, working);
