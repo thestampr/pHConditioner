@@ -1,6 +1,6 @@
 # Example secret.py
 
-What your `secret.py` file should contain:
+`secret.py` file should contain:
 
 ```python
 BLYNK_TEMPLATE_ID = "YOUR_BLYNK_TEMPLATE_ID_HERE"
